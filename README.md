@@ -1,11 +1,14 @@
-# SAG-2019Z
+# Market simulations with multi-agent system approach 
 
 ## Overview
 
 Uni project focused on implementation of multi-agent system (MAS) in context of market simulations. Core idea of project is similar with [Bonatti et al. 1998][1].
 
-## Implementation
+## Assumptions
 
+todo
+
+## Implementation
 
 todo
 
