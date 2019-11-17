@@ -1,3 +1,6 @@
+# Opis Projektu 
+Projekt polega na utworzeniu symulatora rynku dóbr. Ma on na celu zbadanie różnych mechanizmów występujących na rynku. Agenci mają możlwość przeprowadzania tranzakcji kupna i sprzedaży oraz magazynowania dóbr. Każdy z agentów musi zaspokajac swoje potrzeby konsumpcyjne, niektórzy agenci mogą także produkować dobra. Agenci dysponują waluą, za którą mogą nabywać dobra. Celem agenta jest zaspokojenie potrzeb konsumpcyjnych ???(i zdobycie jak najwięcej waluty lub poniesienie jak najmniejszego kosztu)???
+
 # Model rynku 
 
 ## Sesja 
@@ -6,6 +9,8 @@
 
 ## Struktura połączeń
 * struktura połączeń jest generowana przez wybrany graf losowy (Barabasi-Albert, dowolony inny lub zadany przez użytkownika)
+
+# Model Agenta
 
 ## Zasoby
 * agent $A_i$ w chwili $t$ posiada $Z^{A_i}(t)$ zasobu i ma możliwość wygenerować większą jego ilość, która będzie go kosztowała  $g(z)$, gdzie $z$ jest przyrostem zasobu
@@ -18,10 +23,6 @@
 * agenci posiadają na starcie określoną ilość środka wymiany $K^{A_i}$, który jest im przydzialny w sposób losowy lub zdeterminowany przy inicjalizacji systemu
 * agent otrzymuje środek wymiany zgodnie z funkcją $f^{A_i}(\dot)$ 
 
-## Technologia
-* implementacja w języku `Python` 
-* analizy danych wykonywane będą w języku `R` 
-
 ## Polityka decyzyjna 
 * todo
 
@@ -29,7 +30,11 @@
 * todo, bo skomplikowany -- trzeba ogarnąć papery 
 * warto uwzględnić uwagę dr. hab. inż. Pawła Wawrzyńskiego odnośnie tego, że agenty w czasie NEGOCJACJI mogą je zerwać! 
 
-## Eksperymenty (przykładowe)
+# Technologia
+* implementacja w języku `Python` z wykorzystaniem bibliotek: ...
+* analizy danych wykonywane będą w języku `R` 
+
+# Eksperymenty (przykładowe)
 * nadmiar podaży, a niedomiar popytu
 * niedomiar podaży, nadmiar popytu
 * generacja monopoli
