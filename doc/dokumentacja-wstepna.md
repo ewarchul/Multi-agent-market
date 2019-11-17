@@ -1,5 +1,5 @@
 # Opis Projektu 
-Projekt polega na utworzeniu symulatora rynku dóbr. Ma on na celu zbadanie różnych mechanizmów występujących na rynku. Agenci mają możlwość przeprowadzania tranzakcji kupna i sprzedaży oraz magazynowania dóbr. Każdy z agentów musi zaspokajac swoje potrzeby konsumpcyjne, niektórzy agenci mogą także produkować dobra. Agenci dysponują waluą, za którą mogą nabywać dobra. Celem agenta jest zaspokojenie potrzeb konsumpcyjnych ???(i zdobycie jak najwięcej waluty lub poniesienie jak najmniejszego kosztu)???
+Projekt polega na utworzeniu symulatora rynku dóbr. Ma on na celu zbadanie różnych mechanizmów występujących na rynku. Agenci mają możliwość przeprowadzania transakcji kupna i sprzedaży oraz magazynowania dóbr. Każdy z agentów musi zaspokajać swoje potrzeby konsumpcyjne, niektórzy agenci mogą także produkować dobra. Agenci dysponują walutą, za którą mogą nabywać dobra. Celem agenta jest zaspokojenie potrzeb konsumpcyjnych ???(i zdobycie jak najwięcej waluty lub poniesienie jak najmniejszego kosztu)???
 
 # Model rynku 
 
