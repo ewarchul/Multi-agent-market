@@ -1,14 +1,16 @@
 # Opis Projektu 
-Projekt polega na utworzeniu symulatora rynku dóbr. Ma on na celu zbadanie różnych mechanizmów występujących na rynku. Agenci mają możliwość przeprowadzania transakcji kupna i sprzedaży oraz magazynowania dóbr. Każdy z agentów musi zaspokajać swoje potrzeby konsumpcyjne, niektórzy agenci mogą także produkować dobra. Agenci dysponują walutą, za którą mogą nabywać dobra. Celem agenta jest zaspokojenie potrzeb konsumpcyjnych ???(i zdobycie jak najwięcej waluty lub poniesienie jak najmniejszego kosztu)???
+Projekt polega na utworzeniu symulatora rynku dóbr. Ma on na celu zbadanie różnych mechanizmów występujących na rynku. Agenci mają możliwość przeprowadzania transakcji kupna i sprzedaży oraz magazynowania dóbr. Każdy z agentów musi zaspokajać swoje potrzeby konsumpcyjne, niektórzy agenty mogą także produkować dobra. Agenci dysponują środekiem wymiany, za którą mogą nabywać dobra. 
+Cele agenta są różne i zależne od jego polityki decyzyjnej, która z kolei zależy od konfiguracji.
 
 # Model rynku 
 
 ## Sesja 
 * rynek działa ciągle i po czasie $t$ jego stan jest archiwizowany 
-* agenci ciągle mogą ze sobą wchodzić w interkacje i nie są poinformowani o czasie $t$ 
+* agenty ciągle mogą ze sobą wchodzić w interkacje i nie są poinformowani o czasie $t$ 
 
 ## Struktura połączeń
-* struktura połączeń jest generowana przez wybrany graf losowy (Barabasi-Albert, dowolony inny lub zadany przez użytkownika)
+* struktura połączeń jest generowana przez wybrany graf losowy (Barabasi-Albert, dowolony inny lub zadany przez użytkownika) i determinuje ona strukturę rynku, na którym operują agenty
+
 
 # Model Agenta
 
@@ -18,23 +20,25 @@ Projekt polega na utworzeniu symulatora rynku dóbr. Ma on na celu zbadanie ró�
 * produkcja agenta jest ograniczona przez $P^{A_i}_{max}(t, \delta t)$
 * każdy agent posiada maksymalny stan magazynowy zasobu $Z$, którego nie może przekroczyć, i wynosi on $M^{A_i}$
 * jeśli agent przekroczy maksymalny stan posiadania $M^{A_i}$, to zobligowany jest do zapłacenia kosztu utylizacji nadmiarowej ilości zasobu $Z$
-* agenci dysponują potrzebami konsumpcyjnymi $C^{A_i}(t, \delta t)$, które chcą zaspokoić
+* agenty mają potrzeby konsumpcyjne $C^{A_i}(t, \delta t)$, które chcą zaspokoić
 * jeśli agent nie zaspokoi swoich potrzeb konsumpcyjnych po czasie $T$ od ich wygenerowania, to zobligowany jest do zapłacenia kosztu 
-* agenci posiadają na starcie określoną ilość środka wymiany $K^{A_i}$, który jest im przydzialny w sposób losowy lub zdeterminowany przy inicjalizacji systemu
+* agenty posiadają na starcie określoną ilość środka wymiany $K^{A_i}$, który jest im przydzialny w sposób losowy lub zdeterminowany przy inicjalizacji systemu
 * agent otrzymuje środek wymiany zgodnie z funkcją $f^{A_i}(\dot)$ 
 
 ## Polityka decyzyjna 
-* todo
+
+* polityka decyzyjna określa zachowanie agentów na rynku
+* dokładna postać polityki decyzyjnej zostanie określona w trakcie realizacji projektu
 
 ## Protokół komunikacyjny 
-* todo, bo skomplikowany -- trzeba ogarnąć papery 
-* warto uwzględnić uwagę dr. hab. inż. Pawła Wawrzyńskiego odnośnie tego, że agenty w czasie NEGOCJACJI mogą je zerwać! 
+* szczegółowa specyfikacja protokołu komunikacyjnego powstanie w trakcie realizacji i będzie dostosowana do planowanych eksperymentów 
+* zakłada się, że protokół będzie umożliwiał komunikacje $1-m$ oraz $1-1$
 
 # Technologia
-* implementacja w języku `Python` z wykorzystaniem bibliotek: ...
-* analizy danych wykonywane będą w języku `R` 
+* implementacja w języku `Python` z wykorzystaniem bibliotek: `networkx`, `spade`, `PyGraphViz`
+* analizy danych wykonywane będą w języku `R` z wykorzystaniem ekosystemu `tidyverse`
 
-# Eksperymenty (przykładowe)
+# Propozycje eksperymentów
 * nadmiar podaży, a niedomiar popytu
 * niedomiar podaży, nadmiar popytu
 * generacja monopoli
