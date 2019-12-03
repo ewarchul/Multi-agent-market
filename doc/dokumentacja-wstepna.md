@@ -41,7 +41,7 @@ Cele agenta są różne i zależne od jego polityki decyzyjnej, która z kolei z
 # Propozycje eksperymentów
 * nadmiar podaży, a niedomiar popytu
 * niedomiar podaży, nadmiar popytu
-* generacja monopoli
+* generacja monopoli (sytuacja na rynku, w której niewielka liczba agentów -- dwóch lub trzech -- posiada większość dostepnych zasobów)
 * symulacja zdrowego rynku (stan równowagi)
 * określenie realnej wartości zasobu $Z$ na podstawie cen proponowanych przez agenty w trakcie negocjacji handlowych
 * co się dzieje na rynku, gdy pojawiają się podmioty wyłącznie magazynujące towar (chomiki lub logistyka)
