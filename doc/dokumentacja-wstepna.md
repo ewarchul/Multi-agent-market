@@ -31,6 +31,7 @@ Polityka decyzyjna określa zachowanie agentów na rynku.
 
 
 Przyjmuje się, że polityka decyzyjna agenta sparametryzowana jest następującymi wielkościami: 
+
 * obecne zapotrzebowanie agenta $R \geq 0$ 
 * czas, w którym agent musi zaspokoić swoje zapotrzebowanie $T_s$ liczony od czasu startu sesji
 * obecny stan agenta $S$, który jest liczbą posiadanych jednostek zasobu $Z$ przez agenta
@@ -43,17 +44,20 @@ Przyjmuje się, że polityka decyzyjna agenta sparametryzowana jest następując
 
 
 Agent w oknie czasowym $T_w$, wyznaczającym czas trwania negocjacji, generuje oferty sprzedaży (obiekt `Os`) oraz kupna (obiekt `Ob`), na które nałożone są limity:
+
 * `Ob.value` $\leq B$ $\land$ `Ob.n` $\leq M - S$, które kolejno oznaczają: cena zakupionej ilości towaru nie może przekraczać budżetu agenta oraz ilość zakupionego towaru nie może być większa od dostępnej jeszcze liczby jednostek zasobu, które agent może przechowywać.  
 * `Os.n` $\leq S$, tj. ilość sprzedanego towaru nie może być większa pod stan posiadania agenta.
 
 Na podstawie powyższych ustaleń proponowana polityka decyzyjna agenta może być wyglądać następująco:
+
 * `O's`, `O'b` są aktualnymi ofertami kupna i sprzedaży 
 * `Ns` jest agentem inicjalizującym transakcję
 
 
 ```
   buyer initializes
-    initial buy offer = (rand(R - S, M - S), 0 if Ob empty else min(Ob).value * rand(0, 1))
+    initial buy offer = (rand(R - S, M - S), 0 if Ob empty else
+		   			min(Ob).value * rand(0, 1))
    
     seller counter offer:
         n = min{S, O'b(Ns).number}
@@ -76,14 +80,17 @@ Pełna specyfikacja obiektów, które występują w powyższym pseudokodzie zost
 ## Protokół komunikacyjny 
 
 Komunikacja między agentami odbywa się w dwóch trybach:
-1. `1-1`, tj. agent formułuje ofertę `O` kupna lub sprzedaży (patrz polityka decyzyjna) i przekazuje ją wyłącznie do jednego agenta 
-2. `1-m`, tj. komunikacja typu _broadcast_, w której agent formułuje ofertę `O` kupna lub sprzedaży i rozsyła ją do co najmniej dwóch różnych agentów.  
-Oferta jest trójką $(i, p, t_out)$, na którą składa się:
-	* $i$ liczba jednostek zasobu $Z$, które agent chce sprzedać lub kupić w trakcie transakcji z kontrahentami, tj. agentami przyjmującymi ofertę sprzedaży lub kupna od agenta inicjalizującego komunikację 
-	* $p$ oferowana cena kupna lub sprzedaży 
-	* $t_out$ czas trwania oferty 
 
-Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym po czasie $t_out$, to komunikacja między tymi agentami jest zerwana. Pozostałe warunki zerwania komunikacji między agentami wyznaczone są przez parametry polityki decyzyjnej agentów lub maksymalny czas oczekiwania na odpowiedź $\tau$. Jeśli odpowiedź kontrahenta w trakcie negocjacji przyjdzie po czasie $\tau$, to agent inicjujący negocjacje zrywa ją. 
+* `1-1`, tj. agent formułuje ofertę `O` kupna lub sprzedaży (patrz polityka decyzyjna) i przekazuje ją wyłącznie do jednego agenta 
+* `1-m`, tj. komunikacja typu _broadcast_, w której agent formułuje ofertę `O` kupna lub sprzedaży i rozsyła ją do co najmniej dwóch różnych agentów.  
+
+Oferta jest trójką $(i, p, t_{out})$, na którą składa się:
+
+* $i$ liczba jednostek zasobu $Z$, które agent chce sprzedać lub kupić w trakcie transakcji z kontrahentami, tj. agentami przyjmującymi ofertę sprzedaży lub kupna od agenta inicjalizującego komunikację 
+* $p$ oferowana cena kupna lub sprzedaży 
+* $t_{out}$ czas trwania oferty 
+
+Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym po czasie $t_{out}$, to komunikacja między tymi agentami jest zerwana. Pozostałe warunki zerwania komunikacji między agentami wyznaczone są przez parametry polityki decyzyjnej agentów lub maksymalny czas oczekiwania na odpowiedź $\tau$. Jeśli odpowiedź kontrahenta w trakcie negocjacji przyjdzie po czasie $\tau$, to agent inicjujący negocjacje zrywa ją. 
 
 
 # Technologia
