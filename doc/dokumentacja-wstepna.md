@@ -74,8 +74,16 @@ Pełna specyfikacja obiektów, które występują w powyższym pseudokodzie zost
 
 
 ## Protokół komunikacyjny 
-* szczegółowa specyfikacja protokołu komunikacyjnego powstanie w trakcie realizacji i będzie dostosowana do planowanych eksperymentów 
-* zakłada się, że protokół będzie umożliwiał komunikacje $1-m$ oraz $1-1$
+
+Komunikacja między agentami odbywa się w dwóch trybach:
+1. `1-1`, tj. agent formułuje ofertę `O` kupna lub sprzedaży (patrz polityka decyzyjna) i przekazuje ją wyłącznie do jednego agenta 
+2. `1-m`, tj. komunikacja typu _broadcast_, w której agent formułuje ofertę `O` kupna lub sprzedaży i rozsyła ją do co najmniej dwóch różnych agentów.  
+Oferta jest trójką $(i, p, t_out)$, na którą składa się:
+	* $i$ liczba jednostek zasobu $Z$, które agent chce sprzedać lub kupić w trakcie transakcji z kontrahentami 
+	* $p$ oferowana cena kupna lub sprzedaży 
+	* $t_out$ czas trwania oferty 
+
+Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym po czasie $t_out$, to komunikacja między tymi agentami jest zerwana. Pozostałe warunki zerwania komunikacji między agentami wyznaczone są przez parametry polityki decyzyjnej agentów.
 
 # Technologia
 * implementacja w języku `Python` z wykorzystaniem bibliotek: `networkx`, `spade`, `PyGraphViz`
