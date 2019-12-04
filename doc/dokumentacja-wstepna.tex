@@ -2,6 +2,7 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[]{article}
+\usepackage{polski}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
@@ -53,7 +54,7 @@
 
 
 \date{}
-\title{Systemy agentowe: \\ Symulator rynku \\ Dokumentacja wstępna}
+\title{Systemy agentowe: \\ Symulator rynku \\ Dokumentacja wstępna -- wersja kompletna}
 \author{Aleksandra Dzieniszewska \\ Jakub Łyskawa \\ Eryk Warchulski \\ Prowadzący: dr inż. Dominik Ryżko}%
 \date{\today}
 \begin{document}
@@ -66,7 +67,7 @@ zbadanie różnych mechanizmów występujących na rynku. Agenci mają
 możliwość przeprowadzania transakcji kupna i sprzedaży oraz
 magazynowania dóbr. Każdy z agentów musi zaspokajać swoje potrzeby
 konsumpcyjne, niektórzy agenty mogą także produkować dobra. Agenci
-dysponują środekiem wymiany, za który mogą nabywać dobra. Cele agenta są
+dysponują środekiem wymiany, za którą mogą nabywać dobra. Cele agenta są
 różne i zależne od jego polityki decyzyjnej, która z kolei zależy od
 konfiguracji.
 
@@ -122,11 +123,11 @@ konfiguracji.
   zobligowany jest do zapłacenia kosztu utylizacji nadmiarowej ilości
   zasobu \(Z\)
 \item
-  agent ma potrzeby konsumpcyjne \(C^{A_i}(t, \delta t)\), które chce
+  agenty mają potrzeby konsumpcyjne \(C^{A_i}(t, \delta t)\), które chcą
   zaspokoić
 \item
   jeśli agent nie zaspokoi swoich potrzeb konsumpcyjnych po czasie \(T\)
-  od ich wygenerowania, to zobligowany jest do zapłacenia kosztu kary
+  od ich wygenerowania, to zobligowany jest do zapłacenia kosztu
 \item
   agenty posiadają na starcie określoną ilość środka wymiany
   \(K^{A_i}\), który jest im przydzialny w sposób losowy lub
@@ -138,28 +139,126 @@ konfiguracji.
 \hypertarget{polityka-decyzyjna}{%
 \subsection{Polityka decyzyjna}\label{polityka-decyzyjna}}
 
+Polityka decyzyjna określa zachowanie agentów na rynku.
+
+Przyjmuje się, że polityka decyzyjna agenta sparametryzowana jest
+następującymi wielkościami:
+
 \begin{itemize}
 \tightlist
 \item
-  polityka decyzyjna określa zachowanie agentów na rynku
+  obecne zapotrzebowanie agenta \(R \geq 0\)
 \item
-  dokładna postać polityki decyzyjnej zostanie określona w trakcie
-  realizacji projektu
+  czas, w którym agent musi zaspokoić swoje zapotrzebowanie \(T_s\)
+  liczony od czasu startu sesji
+\item
+  obecny stan agenta \(S\), który jest liczbą posiadanych jednostek
+  zasobu \(Z\) przez agenta
+\item
+  obecny budżet agenta \(B\), który jest liczbą posiadanych jednostek
+  wymiany \(K\) przez agenta
+\item
+  funkcją kosztu produkcji \(g(z)\)
+\item
+  funkcją limitu produkcji \(P(t, \delta t)\)
+\item
+  kosztem utylizacji dóbr nadmiarowych \(M_c\)
+\item
+  kosztem niezaspokojenia potrzeb konsumpcyjnych \(C\)
+\item
+  limitem posiadanych jednostek zasobu \(M\)
 \end{itemize}
+
+Agent w oknie czasowym \(T_w\), wyznaczającym czas trwania negocjacji,
+generuje oferty sprzedaży (obiekt \texttt{Os}) oraz kupna (obiekt
+\texttt{Ob}), na które nałożone są limity:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{Ob.value} \(\leq B\) \(\land\) \texttt{Ob.n} \(\leq M - S\),
+  które kolejno oznaczają: cena zakupionej ilości towaru nie może
+  przekraczać budżetu agenta oraz ilość zakupionego towaru nie może być
+  większa od dostępnej jeszcze liczby jednostek zasobu, które agent może
+  przechowywać.\\
+\item
+  \texttt{Os.n} \(\leq S\), tj. ilość sprzedanego towaru nie może być
+  większa pod stan posiadania agenta.
+\end{itemize}
+
+Na podstawie powyższych ustaleń proponowana polityka decyzyjna agenta
+może być wyglądać następująco:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{O\textquotesingle{}s}, \texttt{O\textquotesingle{}b} są
+  aktualnymi ofertami kupna i sprzedaży
+\item
+  \texttt{Ns} jest agentem inicjalizującym transakcję
+\end{itemize}
+
+\begin{verbatim}
+  buyer initializes
+    initial buy offer = (rand(R - S, M - S), 0 if Ob empty else
+                    min(Ob).value * rand(0, 1))
+   
+    seller counter offer:
+        n = min{S, O'b(Ns).number}
+        value = random with boundaries:
+            value >= max(g(S), O'b(Ns).value)
+            if O's not empty:
+                value < min{O's(n) where n is not self}
+
+    buyer counter offer:
+        n = keep previous w.r.t. limits
+        if n = 0 then withdraw
+        value = random with distribution depending on Ts and boundaries:
+            value <= min{O's} & value >= previous
+\end{verbatim}
+
+Pełna specyfikacja obiektów, które występują w powyższym pseudokodzie
+zostana umieszczona w dokumentacji opisującej część implementacyjną.
 
 \hypertarget{protokuxf3ux142-komunikacyjny}{%
 \subsection{Protokół
 komunikacyjny}\label{protokuxf3ux142-komunikacyjny}}
 
+Komunikacja między agentami odbywa się w dwóch trybach:
+
 \begin{itemize}
 \tightlist
 \item
-  szczegółowa specyfikacja protokołu komunikacyjnego powstanie w trakcie
-  realizacji i będzie dostosowana do planowanych eksperymentów
+  \texttt{1-1}, tj. agent formułuje ofertę \texttt{O} kupna lub
+  sprzedaży (patrz polityka decyzyjna) i przekazuje ją wyłącznie do
+  jednego agenta
 \item
-  zakłada się, że protokół będzie umożliwiał komunikacje \(1-m\) oraz
-  \(1-1\)
+  \texttt{1-m}, tj. komunikacja typu \emph{broadcast}, w której agent
+  formułuje ofertę \texttt{O} kupna lub sprzedaży i rozsyła ją do co
+  najmniej dwóch różnych agentów.
 \end{itemize}
+
+Oferta jest trójką \((i, p, t_{out})\), na którą składa się:
+
+\begin{itemize}
+\tightlist
+\item
+  \(i\) liczba jednostek zasobu \(Z\), które agent chce sprzedać lub
+  kupić w trakcie transakcji z kontrahentami, tj. agentami przyjmującymi
+  ofertę sprzedaży lub kupna od agenta inicjalizującego komunikację
+\item
+  \(p\) oferowana cena kupna lub sprzedaży
+\item
+  \(t_{out}\) czas trwania oferty
+\end{itemize}
+
+Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym
+po czasie \(t_{out}\), to komunikacja między tymi agentami jest zerwana.
+Pozostałe warunki zerwania komunikacji między agentami wyznaczone są
+przez parametry polityki decyzyjnej agentów lub maksymalny czas
+oczekiwania na odpowiedź \(\tau\). Jeśli odpowiedź kontrahenta w trakcie
+negocjacji przyjdzie po czasie \(\tau\), to agent inicjujący negocjacje
+zrywa ją.
 
 \hypertarget{technologia}{%
 \section{Technologia}\label{technologia}}
@@ -180,11 +279,12 @@ komunikacyjny}\label{protokuxf3ux142-komunikacyjny}}
 \begin{itemize}
 \tightlist
 \item
-  nadmiar podaży i niedomiar popytu
+  nadmiar podaży, a niedomiar popytu
 \item
   niedomiar podaży, nadmiar popytu
 \item
-  generacja monopoli
+  generacja monopoli (sytuacja na rynku, w której niewielka liczba
+  agentów -- dwóch lub trzech -- posiada większość dostepnych zasobów)
 \item
   symulacja zdrowego rynku (stan równowagi)
 \item
