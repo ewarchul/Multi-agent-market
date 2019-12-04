@@ -48,7 +48,7 @@ Agent w oknie czasowym $T_w$, wyznaczającym czas trwania negocjacji, generuje o
 
 Na podstawie powyższych ustaleń proponowana polityka decyzyjna agenta może być wyglądać następująco:
 * `O's`, `O'b` są aktualnymi ofertami kupna i sprzedaży 
-* `Ns` jest kontrahentem
+* `Ns` jest agentem inicjalizującym transakcję
 
 
 ```
@@ -79,11 +79,12 @@ Komunikacja między agentami odbywa się w dwóch trybach:
 1. `1-1`, tj. agent formułuje ofertę `O` kupna lub sprzedaży (patrz polityka decyzyjna) i przekazuje ją wyłącznie do jednego agenta 
 2. `1-m`, tj. komunikacja typu _broadcast_, w której agent formułuje ofertę `O` kupna lub sprzedaży i rozsyła ją do co najmniej dwóch różnych agentów.  
 Oferta jest trójką $(i, p, t_out)$, na którą składa się:
-	* $i$ liczba jednostek zasobu $Z$, które agent chce sprzedać lub kupić w trakcie transakcji z kontrahentami 
+	* $i$ liczba jednostek zasobu $Z$, które agent chce sprzedać lub kupić w trakcie transakcji z kontrahentami, tj. agentami przyjmującymi ofertę sprzedaży lub kupna od agenta inicjalizującego komunikację 
 	* $p$ oferowana cena kupna lub sprzedaży 
 	* $t_out$ czas trwania oferty 
 
-Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym po czasie $t_out$, to komunikacja między tymi agentami jest zerwana. Pozostałe warunki zerwania komunikacji między agentami wyznaczone są przez parametry polityki decyzyjnej agentów.
+Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym po czasie $t_out$, to komunikacja między tymi agentami jest zerwana. Pozostałe warunki zerwania komunikacji między agentami wyznaczone są przez parametry polityki decyzyjnej agentów lub maksymalny czas oczekiwania na odpowiedź $\tau$. Jeśli odpowiedź kontrahenta w trakcie negocjacji przyjdzie po czasie $\tau$, to agent inicjujący negocjacje zrywa ją. 
+
 
 # Technologia
 * implementacja w języku `Python` z wykorzystaniem bibliotek: `networkx`, `spade`, `PyGraphViz`
