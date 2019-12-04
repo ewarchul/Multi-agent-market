@@ -27,8 +27,51 @@ Cele agenta są różne i zależne od jego polityki decyzyjnej, która z kolei z
 
 ## Polityka decyzyjna 
 
-* polityka decyzyjna określa zachowanie agentów na rynku
-* dokładna postać polityki decyzyjnej zostanie określona w trakcie realizacji projektu
+Polityka decyzyjna określa zachowanie agentów na rynku.
+
+
+Przyjmuje się, że polityka decyzyjna agenta sparametryzowana jest następującymi wielkościami: 
+* obecne zapotrzebowanie agenta $R \geq 0$ 
+* czas, w którym agent musi zaspokoić swoje zapotrzebowanie $T_s$ liczony od czasu startu sesji
+* obecny stan agenta $S$, który jest liczbą posiadanych jednostek zasobu $Z$ przez agenta
+* obecny budżet agenta $B$, który jest liczbą posiadanych jednostek wymiany $K$ przez agenta
+* funkcją kosztu produkcji $g(z)$
+* funkcją limitu produkcji $P(t, \delta t)$
+* kosztem utylizacji dóbr nadmiarowych $M_c$
+* kosztem niezaspokojenia potrzeb konsumpcyjnych $C$
+* limitem posiadanych jednostek zasobu $M$
+
+
+Agent w oknie czasowym $T_w$, wyznaczającym czas trwania negocjacji, generuje oferty sprzedaży (obiekt `Os`) oraz kupna (obiekt `Ob`), na które nałożone są limity:
+* `Ob.value` $\leq B$ $\land$ `Ob.n` $\leq M - S$, które kolejno oznaczają: cena zakupionej ilości towaru nie może przekraczać budżetu agenta oraz ilość zakupionego towaru nie może być większa od dostępnej jeszcze liczby jednostek zasobu, które agent może przechowywać.  
+* `Os.n` $\leq S$, tj. ilość sprzedanego towaru nie może być większa pod stan posiadania agenta.
+
+Na podstawie powyższych ustaleń proponowana polityka decyzyjna agenta może być wyglądać następująco:
+* `O's`, `O'b` są aktualnymi ofertami kupna i sprzedaży 
+* `Ns` jest kontrahentem
+
+
+```
+  buyer initializes
+    initial buy offer = (rand(R - S, M - S), 0 if Ob empty else min(Ob).value * rand(0, 1))
+   
+    seller counter offer:
+        n = min{S, O'b(Ns).number}
+        value = random with boundaries:
+            value >= max(g(S), O'b(Ns).value)
+            if O's not empty:
+                value < min{O's(n) where n is not self}
+
+    buyer counter offer:
+        n = keep previous w.r.t. limits
+        if n = 0 then withdraw
+        value = random with distribution depending on Ts and boundaries:
+            value <= min{O's} & value >= previous
+```
+
+Pełna specyfikacja obiektów, które występują w powyższym pseudokodzie zostana umieszczona w dokumentacji opisującej część implementacyjną.
+
+
 
 ## Protokół komunikacyjny 
 * szczegółowa specyfikacja protokołu komunikacyjnego powstanie w trakcie realizacji i będzie dostosowana do planowanych eksperymentów 
