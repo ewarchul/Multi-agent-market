@@ -9,7 +9,7 @@ import click
 
 @click.group()
 def main_cli():
-    """Command line tool for deploingmultiagent system"""
+    """Command line tool for deploying multiagent system"""
     pass
 
 
@@ -19,13 +19,13 @@ def startSystem():
 
 
 @click.command(help="simulating agent failure")
-@click.option('--agent_id', default=1, help="podaj id agenta do wyłączenia")
+@click.option('--agent_id', default=1, help="id of the agent to stop")
 def killAgent(agent_id):
     print("zabiles agenta "+str(agent_id))
 
 
 @click.command(help="simulating agent restoration")
-@click.option('--agent_id', default=1, help="podaj id agenta do przywrócenia")
+@click.option('--agent_id', default=1, help="id of the agent to restore")
 def restoreAgent(agent_id):
     print("agent with id {} restored".format(agent_id))
 
