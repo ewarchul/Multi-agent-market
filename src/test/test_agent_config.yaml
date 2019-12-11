@@ -1,0 +1,8 @@
+initial-resource: 1
+storage-limit: 4
+production_limit:
+  module: test.test_agent_config
+  fun: production_limit_fun
+  args:
+    - 3
+    - a
