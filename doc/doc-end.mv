@@ -1,0 +1,108 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{cite}
+\usepackage{listings}
+\usepackage{subfig}
+\usepackage{algorithm2e}
+\usepackage{color}
+\usepackage{amsmath}
+\setcounter{tocdepth}{3}
+\usepackage{graphicx}
+\usepackage{polski}
+\usepackage{amssymb}
+\newcommand*{\QEDA}{\hfill\ensuremath{\blacksquare}}%
+\newcommand*{\QEDB}{\hfill\ensuremath{\square}}%<Paste>
+\usepackage[a4paper]{geometry}
+\usepackage{psfrag}
+\usepackage{bbm}
+\usepackage[T1]{fontenc}
+\usepackage{color}
+\usepackage{url}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=violet,
+    filecolor=magenta,      
+    citecolor=blue,
+    urlcolor=cyan,
+}
+\usepackage{graphicx}
+\graphicspath{{graphics/}}
+\usepackage{float}
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\DeclareGraphicsExtensions{.eps}
+\DeclareGraphicsExtensions{.ps}
+\usepackage{algorithmic}
+\usepackage{psfrag}
+\newcommand{\wek}[1]{
+	{\bf{#1}} 
+}
+\newcommand{\jed}[1]{
+	{$\left[#1\right]$}
+}
+\newcommand{\mat}[1]{
+	{\bf #1} 
+}
+\newcommand{\todo}[1]{
+	\colorbox{yellow} {{\color{red}
+	\emph {TODO: #1}
+}}}
+\newcommand{\srednia}[1]{
+	\langle #1 \rangle 
+}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\def\lecturemark{}
+\fancyhf{}
+\fancyhead[L]{\lecturemark}
+\fancyfoot[C]{\thepage}
+\newcommand{\spr}[1]{\part{#1}\def\lecturemark{\partname\ \thepart: #1}}
+\renewcommand{\partname}{Sprawozdanie}
+\usepackage{etoolbox}% for \patchcmd
+\renewcommand{\thepart}{\arabic{part}}
+\makeatletter
+\patchcmd{\@part}{\par\nobreak}{: }{}{}
+\patchcmd{\@part}{\huge}{\Large}{}{}
+\makeatother
+\newcommand{\argmax}{\operatornamewithlimits{argmax}} 
+
+\title{Systemy agentowe: \\ Wieloagentowy symulator rynku\\ Dokumentacja końcowa}
+\author{Aleksandra Dzieniszewska \\ Jakub Łyskawa \\ Eryk Warchulski\\ Prowadzący: dr inż. Dominik Ryżko}%
+\date{\today\\wer. 1.0}
+
+\begin{document}
+\maketitle
+{\footnotesize{\tableofcontents}}
+\topskip0pt
+\vspace*{\fill}
+
+\begin{abstract}
+		todo
+\end{abstract}
+\newpage
+\section{Wprowadzenie}
+\subsection{Model agenta}
+\subsection{Model rynku}
+\section{Architektura systemu}
+\subsection{Moduł inicjujący}
+\subsubsection{Wiersz poleceń}
+\subsection{Moduł sieci połączeń}
+\subsection{Moduł konfiguracyjny}
+\subsection{Moduł Agenta}
+\subsubsection{Logika agenta}
+\subsubsection{Polityki decyzyjne}
+\subsection{Moduł archiwizujący}
+\subsection{Moduł wizualizujący}
+\subsection{Moduł raportowo-analityczny}
+\section{Symulacje}
+\subsection{Todo}
+\subsection{Todo}
+\subsection{Todo}
+\subsection{Todo}
+\subsection{Todo}
+\end{document}
