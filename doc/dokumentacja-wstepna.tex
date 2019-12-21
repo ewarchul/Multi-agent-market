@@ -1,0 +1,304 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[]{article}
+\usepackage{polski}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\date{}
+\title{Systemy agentowe: \\ Symulator rynku \\ Dokumentacja wstępna -- wersja kompletna}
+\author{Aleksandra Dzieniszewska \\ Jakub Łyskawa \\ Eryk Warchulski \\ Prowadzący: dr inż. Dominik Ryżko}%
+\date{\today}
+\begin{document}
+\maketitle
+\hypertarget{opis-projektu}{%
+\section{Opis Projektu}\label{opis-projektu}}
+
+Projekt polega na utworzeniu symulatora rynku dóbr. Ma on na celu
+zbadanie różnych mechanizmów występujących na rynku. Agenci mają
+możliwość przeprowadzania transakcji kupna i sprzedaży oraz
+magazynowania dóbr. Każdy z agentów musi zaspokajać swoje potrzeby
+konsumpcyjne, niektórzy agenty mogą także produkować dobra. Agenci
+dysponują środekiem wymiany, za którą mogą nabywać dobra. Cele agenta są
+różne i zależne od jego polityki decyzyjnej, która z kolei zależy od
+konfiguracji.
+
+\hypertarget{model-rynku}{%
+\section{Model rynku}\label{model-rynku}}
+
+\hypertarget{sesja}{%
+\subsection{Sesja}\label{sesja}}
+
+\begin{itemize}
+\tightlist
+\item
+  rynek działa ciągle i po czasie \(t\) jego stan jest archiwizowany
+\item
+  agenty ciągle mogą ze sobą wchodzić w interkacje i nie są
+  poinformowani o czasie \(t\)
+\end{itemize}
+
+\hypertarget{struktura-poux142ux105czeux144}{%
+\subsection{Struktura połączeń}\label{struktura-poux142ux105czeux144}}
+
+\begin{itemize}
+\tightlist
+\item
+  struktura połączeń jest generowana przez wybrany graf losowy
+  (Barabasi-Albert, dowolony inny lub zadany przez użytkownika) i
+  determinuje ona strukturę rynku, na którym operują agenty
+\end{itemize}
+
+\hypertarget{model-agenta}{%
+\section{Model Agenta}\label{model-agenta}}
+
+\hypertarget{zasoby}{%
+\subsection{Zasoby}\label{zasoby}}
+
+\begin{itemize}
+\tightlist
+\item
+  agent \(A_i\) w chwili \(t\) posiada \(Z^{A_i}(t)\) zasobu i ma
+  możliwość wygenerować większą jego ilość, która będzie go kosztowała
+  \(g(z)\), gdzie \(z\) jest przyrostem zasobu
+\item
+  agent może przechowywać zasób lub go sprzedać, wchodząc w negocjacje
+  handlowe z pozostałymi agentami na rynku, z którymi agent jest
+  połączony (patrz struktura połączeń)
+\item
+  produkcja agenta jest ograniczona przez \(P^{A_i}_{max}(t, \delta t)\)
+\item
+  każdy agent posiada maksymalny stan magazynowy zasobu \(Z\), którego
+  nie może przekroczyć, i wynosi on \(M^{A_i}\)
+\item
+  jeśli agent przekroczy maksymalny stan posiadania \(M^{A_i}\), to
+  zobligowany jest do zapłacenia kosztu utylizacji nadmiarowej ilości
+  zasobu \(Z\)
+\item
+  agenty mają potrzeby konsumpcyjne \(C^{A_i}(t, \delta t)\), które chcą
+  zaspokoić
+\item
+  jeśli agent nie zaspokoi swoich potrzeb konsumpcyjnych po czasie \(T\)
+  od ich wygenerowania, to zobligowany jest do zapłacenia kosztu
+\item
+  agenty posiadają na starcie określoną ilość środka wymiany
+  \(K^{A_i}\), który jest im przydzialny w sposób losowy lub
+  zdeterminowany przy inicjalizacji systemu
+\item
+  agent otrzymuje środek wymiany zgodnie z funkcją \(f^{A_i}(\dot)\)
+\end{itemize}
+
+\hypertarget{polityka-decyzyjna}{%
+\subsection{Polityka decyzyjna}\label{polityka-decyzyjna}}
+
+Polityka decyzyjna określa zachowanie agentów na rynku.
+
+Przyjmuje się, że polityka decyzyjna agenta sparametryzowana jest
+następującymi wielkościami:
+
+\begin{itemize}
+\tightlist
+\item
+  obecne zapotrzebowanie agenta \(R \geq 0\)
+\item
+  czas, w którym agent musi zaspokoić swoje zapotrzebowanie \(T_s\)
+  liczony od czasu startu sesji
+\item
+  obecny stan agenta \(S\), który jest liczbą posiadanych jednostek
+  zasobu \(Z\) przez agenta
+\item
+  obecny budżet agenta \(B\), który jest liczbą posiadanych jednostek
+  wymiany \(K\) przez agenta
+\item
+  funkcją kosztu produkcji \(g(z)\)
+\item
+  funkcją limitu produkcji \(P(t, \delta t)\)
+\item
+  kosztem utylizacji dóbr nadmiarowych \(M_c\)
+\item
+  kosztem niezaspokojenia potrzeb konsumpcyjnych \(C\)
+\item
+  limitem posiadanych jednostek zasobu \(M\)
+\end{itemize}
+
+Agent w oknie czasowym \(T_w\), wyznaczającym czas trwania negocjacji,
+generuje oferty sprzedaży (obiekt \texttt{Os}) oraz kupna (obiekt
+\texttt{Ob}), na które nałożone są limity:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{Ob.value} \(\leq B\) \(\land\) \texttt{Ob.n} \(\leq M - S\),
+  które kolejno oznaczają: cena zakupionej ilości towaru nie może
+  przekraczać budżetu agenta oraz ilość zakupionego towaru nie może być
+  większa od dostępnej jeszcze liczby jednostek zasobu, które agent może
+  przechowywać.\\
+\item
+  \texttt{Os.n} \(\leq S\), tj. ilość sprzedanego towaru nie może być
+  większa pod stan posiadania agenta.
+\end{itemize}
+
+Na podstawie powyższych ustaleń proponowana polityka decyzyjna agenta
+może być wyglądać następująco:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{O\textquotesingle{}s}, \texttt{O\textquotesingle{}b} są
+  aktualnymi ofertami kupna i sprzedaży
+\item
+  \texttt{Ns} jest agentem inicjalizującym transakcję
+\end{itemize}
+
+\begin{verbatim}
+  buyer initializes
+    initial buy offer = (rand(R - S, M - S), 0 if Ob empty else
+                    min(Ob).value * rand(0, 1))
+   
+    seller counter offer:
+        n = min{S, O'b(Ns).number}
+        value = random with boundaries:
+            value >= max(g(S), O'b(Ns).value)
+            if O's not empty:
+                value < min{O's(n) where n is not self}
+
+    buyer counter offer:
+        n = keep previous w.r.t. limits
+        if n = 0 then withdraw
+        value = random with distribution depending on Ts and boundaries:
+            value <= min{O's} & value >= previous
+\end{verbatim}
+
+Pełna specyfikacja obiektów, które występują w powyższym pseudokodzie
+zostana umieszczona w dokumentacji opisującej część implementacyjną.
+
+\hypertarget{protokuxf3ux142-komunikacyjny}{%
+\subsection{Protokół
+komunikacyjny}\label{protokuxf3ux142-komunikacyjny}}
+
+Komunikacja bazuje na protokole konwersacji o akcji i może się odbywać w jednym z dwóch trybów:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{1-1}, tj. agent formułuje ofertę \texttt{O} kupna lub
+  sprzedaży (patrz polityka decyzyjna) i przekazuje ją wyłącznie do
+  jednego agenta
+\item
+  \texttt{1-m}, tj. komunikacja typu \emph{broadcast}, w której agent
+  formułuje ofertę \texttt{O} kupna lub sprzedaży i rozsyła ją do co
+  najmniej dwóch różnych agentów.
+\end{itemize}
+
+Oferta jest trójką \((i, p, t_{out})\), na którą składa się:
+
+\begin{itemize}
+\tightlist
+\item
+  \(i\) liczba jednostek zasobu \(Z\), które agent chce sprzedać lub
+  kupić w trakcie transakcji z kontrahentami, tj. agentami przyjmującymi
+  ofertę sprzedaży lub kupna od agenta inicjalizującego komunikację
+\item
+  \(p\) oferowana cena kupna lub sprzedaży
+\item
+  \(t_{out}\) czas trwania oferty
+\end{itemize}
+
+Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym
+po czasie \(t_{out}\), to komunikacja między tymi agentami jest zerwana.
+Pozostałe warunki zerwania komunikacji między agentami wyznaczone są
+przez parametry polityki decyzyjnej agentów lub maksymalny czas
+oczekiwania na odpowiedź \(\tau\). Jeśli odpowiedź kontrahenta w trakcie
+negocjacji przyjdzie po czasie \(\tau\), to agent inicjujący negocjacje
+zrywa ją.
+
+\hypertarget{technologia}{%
+\section{Technologia}\label{technologia}}
+
+\begin{itemize}
+\tightlist
+\item
+  implementacja w języku \texttt{Python} z wykorzystaniem bibliotek:
+  \texttt{networkx}, \texttt{spade}, \texttt{PyGraphViz}
+\item
+  analizy danych wykonywane będą w języku \texttt{R} z wykorzystaniem
+  ekosystemu \texttt{tidyverse}
+\end{itemize}
+
+\hypertarget{propozycje-eksperymentuxf3w}{%
+\section{Propozycje eksperymentów}\label{propozycje-eksperymentuxf3w}}
+
+\begin{itemize}
+\tightlist
+\item
+  nadmiar podaży, a niedomiar popytu
+\item
+  niedomiar podaży, nadmiar popytu
+\item
+  generacja monopoli (sytuacja na rynku, w której niewielka liczba
+  agentów -- dwóch lub trzech -- posiada większość dostepnych zasobów)
+\item
+  symulacja zdrowego rynku (stan równowagi)
+\item
+  określenie realnej wartości zasobu \(Z\) na podstawie cen
+  proponowanych przez agenty w trakcie negocjacji handlowych
+\item
+  co się dzieje na rynku, gdy pojawiają się podmioty wyłącznie
+  magazynujące towar (chomiki lub logistyka)
+\item
+  sezonowość produkcji lub konsumpcji
+\item
+  trajektoria cen w funkcji polityki decyzyjnej agentów
+\item
+  odporność na błędy polityki decyzyjnej lub parametrów początkowych
+\end{itemize}
+
+\end{document}
