@@ -2,7 +2,7 @@ import networkx as nx
 import random
 import matplotlib.pyplot as plt
 import yaml
-import network_utils  
+from network_utils import *
 
 class AgentNet(nx.Graph):
     """
