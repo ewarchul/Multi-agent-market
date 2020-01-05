@@ -1,45 +1,51 @@
-import click
-
-# potrzebne funkcje:
-# 1. odpalenie programu
-# 2. zabicie określonego agenta
-# 3. podniesienie agenta
-# 4. zwrócenie logu
-
-
-@click.group()
-def main_cli():
-    """Command line tool for deploying multiagent system"""
+def initialize():
+    """initializes system"""
     pass
 
 
-@click.command(help="initialising the system")
-def startSystem():
-    print("multi agent system started")
+def shutdown():
+    """turns the system off"""
+    return False
 
 
-@click.command(help="simulating agent failure")
-@click.option('--agent_id', default=1, help="id of the agent to stop")
-def killAgent(agent_id):
-    print("zabiles agenta "+str(agent_id))
+def show_log():
+    """Shows log of the system"""
+    pass
 
 
-@click.command(help="simulating agent restoration")
-@click.option('--agent_id', default=1, help="id of the agent to restore")
-def restoreAgent(agent_id):
-    print("agent with id {} restored".format(agent_id))
+def kill_agent(agents):
+    """ kills the specified agent"""
+    for agent in agents:
+        print("you killed: " + agent)
 
 
-@click.command(help="showing saved logs")
-def showLog():
-    print("log")
+def restore_agent(agents):
+    """ restores the specified agent"""
+
+    for agent in agents:
+        print("you restored: "+agent)
+        # agents.append(int(arg))
 
 
-main_cli.add_command(showLog)
-main_cli.add_command(restoreAgent)
-main_cli.add_command(startSystem)
-main_cli.add_command(killAgent)
+def main_loop():
+    run = True
+    while run:
+        initialize()
+        command = input("waiting for command ...\n")
+        command_list = command.split(" ")
+        print(command_list)
+        if command_list[0] == "kill":
+            kill_agent(command_list[1:])
+        elif command_list[0] == "shutdown":
+            run = shutdown()
+        elif command_list[0] == "restore":
+            restore_agent(command_list[1:])
+        elif command_list[0] == "log":
+            show_log()
+        else:
+            pass
 
 
 if __name__ == "__main__":
-    main_cli()
+    main_loop()
+
