@@ -1,4 +1,5 @@
 import networkx as nx
+import itertools
 import random
 import matplotlib.pyplot as plt
 import yaml
@@ -8,16 +9,22 @@ class AgentNet(nx.Graph):
     """
     Class with agent network graph.
     """
-    def __init__(self, init_num=2, net_type="complete", net_density="MEDIUM"):
+    def __init__(self, init_num=2, net_type="custom", net_density="MEDIUM", network=None, agents_policies=None, connections = None):
         """
         Method initializes an agent network with default parameters.
         :param init_num: initial number of nodes for random graph construction algorithms or initial nodes for complete graph
         :param net_type: type of graph {"complete", "random", "custom"}
         :param net_density: density of random graph {SPARSE, MEDIUM, DENSE}
+        :param network: field which contains networkx's graph 
+        :param agents_policies: map from agent id to file link with agent policy 
+        :param connections: map with nodes connections 
         """
         self.init_num =  init_num 
         self.net_type = net_type 
         self.net_density = net_density 
+        self.network = network  
+        self.agents_policies = agents_policies 
+        self.connections = connections
     def create_network(self):
         """
         Method creates an agent network up to net_type.
@@ -28,27 +35,55 @@ class AgentNet(nx.Graph):
             self.network = nx.Graph(self.connections)
         else:
             self.network = nx.fast_gnp_random_graph(self.init_num, dens2prob(self.net_density))
-    def set_params(self, config_filename):
+    def set_policies(self, config_filename):
         """
-        Method sets randomly a file link to agent policy for each agent id. 
-        :param config_filename: path to file with links to policies
+        Method sets policies from config file. 
+        :param config_filename: path to file with policies config
         """
         with open(config_filename, 'r') as configs:
             params_yaml = yaml.load(configs)
-            self.agents_policies = {agent_id: random.choices(params_yaml.get('configs')) for agent_id in self.network.nodes}
-    def add_agent(self, agent_id):
+            flatten_values = list(itertools.chain.from_iterable(list(params_yaml['agents_policies'].values())))
+            flatten_keys = list(params_yaml['agents_policies'].keys())
+            if self.agents_policies:
+                self.agents_policies.update(dict(list(zip(flatten_keys, flatten_values))))
+            else:
+                self.agents_policies = dict(list(zip(flatten_keys, flatten_values)))
+    def set_policy(self, agent_ids, policies):
+        if self.agents_policies:
+            self.agents_policies.update({agent_id: policy for (agent_id, policy) in list(zip(agent_ids, policies))})
+        else:
+            self.agents_policies = {agent_id: policy for (agent_id, policy) in list(zip(agent_ids, policies))}
+    def set_connections(self, config_filename):
         """
-        Method connects an agent with given id to randomly choosen agent from network. 
+        Method sets connections from config file. 
+        :param config_filename: path to file with connections config
+        """
+        with open(config_filename, 'r') as configs:
+            params_yaml = yaml.load(configs)
+            if self.network is None:
+                self.connections = params_yaml['network_connections'] 
+            else:
+                self.network = nx.compose(self.network, nx.Graph(params_yaml['network_connections']))
+    def set_connection(self, agent_id, ids_list):
+        """
+        Method connects an agent with given id to choosen agents from network.
+        If list of choosen agents is empty then method connects an agent
+        with given id to randomly choosen agent from network. 
         :param agent_id: new agent id
+        :param ids_list: list of ids in network
         """
-        sampled_agent = random.sample(list(self.network.nodes), 1)
-        self.network.add_edge(agent_id, sampled_agent[0])
-    def remove_agent(self, agent_id):
+        if ids_list:
+            self.network.add_edges_from([(agent_id, id) for id in ids_list])
+        else:
+            sampled_agent = random.sample(list(self.network.nodes), 1)
+            self.network.add_edge(agent_id, sampled_agent[0])
+    def remove_connection(self, agent_ids):
         """
         Method removes an agent from network. 
-        :param agent_id: agent id choosen to be removed 
+        :param agent_id: agent id(s) choosen to be removed 
+        :type agent_id: list
         """
-        self.network.remove_node(agent_id)
+        self.network.remove_nodes_from(agent_ids)
     def show_network(self):
         """
         Method plots graph with connections (edges) between agents (nodes). 
