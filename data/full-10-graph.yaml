@@ -1,25 +1,15 @@
 agent_init_num: 10
 agents_policies:
-  0:
-  - p3
-  1:
-  - p3
-  2:
-  - p4
-  3:
-  - p3
-  4:
-  - p1
-  5:
-  - p2
-  6:
-  - p4
-  7:
-  - p1
-  8:
-  - p5
-  9:
-  - p3
+  0: p3
+  1: p3
+  2: p4
+  3: p3
+  4: p1
+  5: p2
+  6: p4
+  7: p1
+  8: p5
+  9: p3
 network_connections:
   0:
   - 1
