@@ -42,13 +42,16 @@ class AgentNet(nx.Graph):
         """
         with open(config_filename, 'r') as configs:
             params_yaml = yaml.load(configs)
-            flatten_values = list(itertools.chain.from_iterable(list(params_yaml['agents_policies'].values())))
-            flatten_keys = list(params_yaml['agents_policies'].keys())
             if self.agents_policies:
-                self.agents_policies.update(dict(list(zip(flatten_keys, flatten_values))))
+                self.agents_policies.update(params_yaml['agents_policies'])
             else:
-                self.agents_policies = dict(list(zip(flatten_keys, flatten_values)))
+                self.agents_policies = params_yaml['agents_policies'] 
     def set_policy(self, agent_ids, policies):
+        """
+        Method sets policies for given agents ids by user.
+        :param agent_ids: list of ids
+        :param policies: list of policies
+        """
         if self.agents_policies:
             self.agents_policies.update({agent_id: policy for (agent_id, policy) in list(zip(agent_ids, policies))})
         else:
@@ -108,11 +111,11 @@ class AgentNet(nx.Graph):
         Method reads agents network from YAML file.
         :param filename: source filename
         """
-        with open(filename, 'w') as network_file:
+        with open(filename, 'r') as network_file:
             yaml_network = yaml.load(network_file)
             self.init_num = yaml_network.get('agent_init_num', 2)
             self.net_type = yaml_network.get('network_type', "complete")
             self.net_density = yaml_network.get('network_density', "MEDIUM")
-            self.agents_policies = yaml_network.get('agent_policies', None)
+            self.agents_policies = yaml_network.get('agents_policies', None)
             self.connections = yaml_network.get('network_connections', None)
 
