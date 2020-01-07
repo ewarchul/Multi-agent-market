@@ -10,15 +10,21 @@ EVENT_AGENT_RESTARTED = 'Agent restarted'
 EVENT_SYSTEM_INITIALIZED = 'System initialized'
 EVENT_SYSTEM_CLOSE = 'System closing'
 EVENT_CLI = 'CLI command received'
+EVENT_EXCEPTION = 'Exception occurred'
+EVENT_MESSAGE_SENT = 'Message sent'
+EVENT_MESSAGE_RECEIVED = 'Message received'
 
 
 EVENTS_ALL = {
     EVENT_LOGGER_INITIALIZED: (),
     EVENT_AGENT_KILLED: ('id',),
-    EVENT_AGENT_STARTED: ('id', 'policy'),
+    EVENT_AGENT_STARTED: ('id', 'name', 'connections', 'jid', 'policy'),
     EVENT_AGENT_RESTARTED: ('id',),
     EVENT_SYSTEM_CLOSE: (),
-    EVENT_CLI: ('command', 'args')
+    EVENT_CLI: ('command', 'args'),
+    EVENT_EXCEPTION: ('where', 'type', 'exception'),
+    EVENT_MESSAGE_SENT: ('sender', 'receiver', 'content'),
+    EVENT_MESSAGE_RECEIVED: ('sender', 'receiver', 'content'),
 }
 
 
@@ -31,7 +37,8 @@ def initialize_default_logger(log_file):
     :param log_file:
     """
     global logger
-    logger = Logger((sys.stdout, log_file), EVENTS_ALL)
+    streams = (sys.stdout, log_file) if log_file else sys.stdout,
+    logger = Logger(streams, EVENTS_ALL)
 
 
 class Logger(object):

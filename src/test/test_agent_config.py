@@ -2,7 +2,7 @@ import os
 
 import unittest
 
-from config import load_agent_config
+from config import AgentConfig, load_agent_config
 
 
 def production_limit_fun(time, dt, arg1, arg2):
@@ -26,4 +26,8 @@ class TestAgentConfig(unittest.TestCase):
         self.assertEqual(dt, 2)
         self.assertEqual(arg1, 3)
         self.assertEqual(arg2, 'a')
+
+    def test_policy_name(self):
+        config = AgentConfig()
+        self.assertEqual(config.get_policy_name(), 'policies.policy.Policy()')
 

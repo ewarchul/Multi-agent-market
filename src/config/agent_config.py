@@ -163,6 +163,14 @@ class AgentConfig(object):
                 DEFAULT_FUN_ARGS
             )
 
+    def get_policy_name(self):
+        """
+        :return: policy as string
+        """
+        return f'{self._policy_builder.__module__}.' \
+               f'{self._policy_builder.__name__}' \
+               f'({", ".join(map(str, self._policy_builder_args))})'
+
 
 def load_agent_config(file_name):
     """
