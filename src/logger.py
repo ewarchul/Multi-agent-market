@@ -7,6 +7,13 @@ EVENT_LOGGER_INITIALIZED = 'Logger initialized'
 EVENT_AGENT_KILLED = 'Agent killed'
 EVENT_AGENT_STARTED = 'Agent started'
 EVENT_AGENT_RESTARTED = 'Agent restarted'
+
+EVENT_AGENT_INITIAL_OFFER = 'Initial offer'
+EVENT_AGENT_OFFER_CHANGED = 'Offer changed'
+EVENT_AGENT_OFFER_ACCEPTED = 'Offer accepted'
+
+EVENT_AGENT_STATE_CHANGED = 'Agent state changed'
+
 EVENT_SYSTEM_INITIALIZED = 'System initialized'
 EVENT_SYSTEM_CLOSE = 'System closing'
 EVENT_CLI = 'CLI command received'
@@ -24,6 +31,13 @@ EVENTS_ALL = {
     EVENT_AGENT_KILLED: ('id',),
     EVENT_AGENT_STARTED: ('id', 'name', 'connections', 'jid', 'policy'),
     EVENT_AGENT_RESTARTED: ('id',),
+
+    EVENT_AGENT_INITIAL_OFFER: ('id', 'type', 'resource', 'money'),  # type as 'buy' or 'sell'
+    EVENT_AGENT_OFFER_CHANGED: ('id', 'type', 'prev_resource', 'prev_money', 'resource', 'money'),
+    EVENT_AGENT_OFFER_ACCEPTED: ('id', 'type', 'resource', 'money'),
+
+    EVENT_AGENT_STATE_CHANGED: ('id', 'reason', 'old_resource', 'resource', 'old_money', 'money'),
+
     EVENT_SYSTEM_CLOSE: (),
     EVENT_CLI: ('command', 'args'),
     EVENT_EXCEPTION: ('where', 'type', 'exception'),
