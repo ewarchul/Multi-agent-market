@@ -5,7 +5,7 @@ import spade.message as message
 
 def deserialize_message(spade_message):
     return Message(
-        spade_message.sender,
+        str(spade_message.sender),
         pickle.loads(base64.b64decode(spade_message.body)),
         pickle.loads(base64.b64decode(spade_message.metadata['sender_session'])),
         pickle.loads(base64.b64decode(spade_message.metadata['receiver_session']))

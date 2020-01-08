@@ -13,6 +13,10 @@ EVENT_CLI = 'CLI command received'
 EVENT_EXCEPTION = 'Exception occurred'
 EVENT_MESSAGE_SENT = 'Message sent'
 EVENT_MESSAGE_RECEIVED = 'Message received'
+EVENT_SERVER_NEGOTIATION_BREAKDOWN = 'Server negotiation breakdown'
+EVENT_ALL_CLIENTS_NEGOTIATION_BREAKDOWN = 'All clients negotiation breakdown'
+EVENT_CLIENT_NEGOTIATION_BREAKDOWN = 'Client negotiation breakdown'
+EVENT_SERVER_FAILED_TO_RESPOND = 'Server failed to respond'
 
 
 EVENTS_ALL = {
@@ -25,6 +29,10 @@ EVENTS_ALL = {
     EVENT_EXCEPTION: ('where', 'type', 'exception'),
     EVENT_MESSAGE_SENT: ('sender', 'receiver', 'content'),
     EVENT_MESSAGE_RECEIVED: ('sender', 'receiver', 'content'),
+    EVENT_SERVER_NEGOTIATION_BREAKDOWN: ('id',),
+    EVENT_ALL_CLIENTS_NEGOTIATION_BREAKDOWN: ('id',),
+    EVENT_CLIENT_NEGOTIATION_BREAKDOWN: ('id', 'server_id'),
+    EVENT_SERVER_FAILED_TO_RESPOND: ('id', 'server_id')
 }
 
 
