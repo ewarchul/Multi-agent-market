@@ -2,6 +2,9 @@ import enum
 
 
 class OfferType(enum.Enum):
+    """
+    Offer types
+    """
     INITAL_OFFER = 'Initial'
     COUNTER_OFFER = 'Counter'
     ACCEPTING_OFFER = 'Accepting'
@@ -10,7 +13,21 @@ class OfferType(enum.Enum):
 
 
 class Offer:
+    """
+    Offer object.
+
+    If used as boolean, returns False iff it is a breakdown offer
+    """
     def __init__(self, offer_type, is_sell_offer, resource, money, other_offers=()):
+        """
+        Creates offer.
+
+        :param offer_type: Type of the offer
+        :param is_sell_offer: True if selling resource, False if buying
+        :param resource: Amount of resource
+        :param money: Amount of unit
+        :param other_offers:
+        """
         self.type = offer_type
         self.resource = resource
         self.money = money
@@ -34,6 +51,12 @@ class Offer:
 
 
 def make_accepting(offer, other_offers):
+    """
+    Creates offer that given offer
+    :param offer: the accepted offer
+    :param other_offers: all offers that were accepted
+    :return: Accepting offer
+    """
     return Offer(
         OfferType.ACCEPTING_OFFER,
         not offer.is_sell_offer,
@@ -44,6 +67,11 @@ def make_accepting(offer, other_offers):
 
 
 def make_confirmation(offer):
+    """
+    Creates confirmation for given offer
+    :param offer: the offer
+    :return: Confirmation offer
+    """
     return Offer(
         OfferType.CONFIRMATION_OFFER,
         not offer.is_sell_offer,

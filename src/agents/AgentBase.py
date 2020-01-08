@@ -10,16 +10,30 @@ from agents.Offer import Offer, OfferType, make_accepting, make_confirmation
 
 
 class AgentBase(spade.agent.Agent):
+    """
+    Implementation of Multi-agent system part of agent
+    """
     HOST = 'localhost'
     TIME_QUANT = 0.05
 
     def get_agent_jid(self, agent_id):
+        """
+        :param agent_id:
+        :return: JID for given ID
+        """
         return f'agent_{agent_id}@{self.HOST}'
 
     def get_agent_id(self, agent_jid):
+        """
+        :param agent_jid:
+        :return: ID for given JID
+        """
         return agent_jid[len('agent_'):-(len(self.HOST) + 1)]
 
     class SendMessages(spade.behaviour.CyclicBehaviour):
+        """
+        Behaviour for sending messages
+        """
         def __init__(self):
             super(AgentBase.SendMessages, self).__init__()
 
@@ -50,6 +64,9 @@ class AgentBase(spade.agent.Agent):
                     self.agent.remove_session(sess.session_id)
 
     class ReceiveMessage(spade.behaviour.CyclicBehaviour):
+        """
+        Behaviour for receiving messages
+        """
         def __init__(self):
             super(AgentBase.ReceiveMessage, self).__init__()
 
@@ -90,6 +107,13 @@ class AgentBase(spade.agent.Agent):
                 )
 
     def __init__(self, agent_id, connections, config):
+        """
+        Creates agent
+
+        :param agent_id: ID of the agent
+        :param connections: a collections of ids of agents that this agent is connected to
+        :param config: agent configuration
+        """
         self.id = str(agent_id)
         self.connections = list(map(str, connections))
         self.config = config
@@ -107,6 +131,7 @@ class AgentBase(spade.agent.Agent):
         super(AgentBase, self).__init__(self.jid, self.jid)
 
     async def setup(self):
+        """ spade setup """
         self.sender_behaviour = self.SendMessages()
         self.receiver_behaviour = self.ReceiveMessage()
 
@@ -122,6 +147,10 @@ class AgentBase(spade.agent.Agent):
         )
 
     def create_session(self):
+        """
+        Creates a session with locally-unique id
+        :return: created session
+        """
         with self.session_lock:
             sess = Session(self, self.next_session_id)
             self.next_session_id += 1
@@ -129,15 +158,30 @@ class AgentBase(spade.agent.Agent):
             return sess
 
     def remove_session(self, session_id):
+        """
+        Removes session
+        :param session_id: ID of session that is to be removed
+        :return: None
+        """
         with self.session_lock:
             self.sessions.pop(session_id)
 
     def get_sessions(self):
+        """
+        :return: a list of all open sessions
+        """
         with self.session_lock:
             return list(self.sessions.values())
 
     def received_msg_without_session(self, msg):
-        sess = self.create_session()
+        """
+        Manage message received without session
+
+        if is INITIAL_OFFER, starts new negotiation
+
+        :param msg: message
+        :return: None
+        """
         agent = self.get_agent_id(msg.agent)
         offer = msg.body
         agent_sess_id = msg.sender_session
@@ -157,15 +201,29 @@ class AgentBase(spade.agent.Agent):
                 exc=offer.type
             )
         else:
-            t = threading.Thread(target=self.run_transaction_in_client_mode, args=(agent, offer, sess, agent_sess_id))
+            t = threading.Thread(target=self.run_transaction_in_client_mode, args=(agent, offer, agent_sess_id))
             t.daemon = True
             t.start()
 
-    def run_transaction_in_client_mode(self, agent, initial_offer, session, agent_session_id):
+    def run_transaction_in_client_mode(self, agent, initial_offer, agent_session_id):
+        """
+        Runs transaction in client mode
+        :param agent: negotiation partner
+        :param initial_offer: partner's offer
+        :param agent_session_id: id of partner's session
+        :return: None
+        """
+        session = self.create_session()
         self.negotiate_client(session, initial_offer, agent, agent_session_id)
         session.end()
 
     def run_transaction_in_server_mode(self, selling):
+        """
+        Runs in server mode (as '1' in '1 to n')
+
+        :param selling: True if try to sell, else False
+        :return: None
+        """
         session = self.create_session()
 
         def run():
@@ -181,6 +239,14 @@ class AgentBase(spade.agent.Agent):
         t.start()
 
     def negotiate_server(self, session, initial_offer, partners):
+        """
+        Negotiate as a server
+
+        :param session: session
+        :param initial_offer: initial offer to send to partners
+        :param partners: initial set of partners
+        :return: None
+        """
         timeout = self.get_timeout()
 
         offer = initial_offer
@@ -212,11 +278,12 @@ class AgentBase(spade.agent.Agent):
 
             if accept_offers:
                 confirmation_offers = self.finalize_negotiations(
-                    accept_offers, sender_offers,
+                    accept_offers, {s: o for s, o in sender_offers.items() if s not in accept_offers},
                     session, partners_sessions, timeout)
                 break
 
             offer = self.get_counter_offer(offer, sender_offers)
+            offer.other_offers = list(sender_offers.values())
 
         self.accepted_offers(offer, confirmation_offers)
 
@@ -232,6 +299,16 @@ class AgentBase(spade.agent.Agent):
             )
 
     def finalize_negotiations(self, accept_offers, reject_offers, session, partner_sessions, timeout):
+        """
+        Finalizes negotiation as a server - accept selected offers, reject other
+
+        :param accept_offers: dict mapping agents to offers that are to be accepted
+        :param reject_offers: dict mapping agents to offers that are to be rejected
+        :param session: session
+        :param partner_sessions: dict mapping agents to their session IDs
+        :param timeout: timeout for receiving messages
+        :return: dict mapping agents to confirmation offers
+        """
         for sender, offer in accept_offers.items():
             own = make_accepting(offer, list(accept_offers.values()))
             session.send(own, sender, partner_sessions[sender])
@@ -244,6 +321,15 @@ class AgentBase(spade.agent.Agent):
         return {s: o for s, o in zip(senders, offers) if o}
 
     def negotiate_client(self, session, initial_offer, partner, partner_session):
+        """
+        Negotiate as client
+
+        :param session: session
+        :param initial_offer: received offer
+        :param partner: partner agent
+        :param partner_session: partner's session ID
+        :return: None
+        """
         partner_offer = initial_offer
         own_offer = self.get_counter_offer(None, {partner: partner_offer})
 
@@ -281,22 +367,66 @@ class AgentBase(spade.agent.Agent):
         self.accepted_offers(own_offer, {partner: partner_offer} if partner_offer else {})
 
     def get_negotiation_partners(self, selling):
+        """
+        Returns initial negotiation partners list
+
+        :param selling: if negotiation's purpose is to sell resource
+        :return: a set of agents' IDs
+        """
         return set(self.connections)
 
     def get_initial_buy_offer(self):
+        """
+        Prepares initial buy offer
+
+        :return: Offer object with type = INITIAL_OFFER and is_sell_offer = False
+        """
         raise NotImplementedError
 
     def get_initial_sell_offer(self):
+        """
+        Prepares initial sell offer
+
+        :return: Offer object with type = INITIAL_OFFER and is_sell_offer = True
+        """
         raise NotImplementedError
 
     def get_timeout(self):
+        """
+
+        :return: time to wait for responses
+        """
         raise NotImplementedError
 
     def get_counter_offer(self, offer, sender_offers):
+        """
+        Prepare counter offer.
+
+        Counter offer should not have other_offers field set, as it is done
+        in negotiate_server only
+
+        :param offer: previous own offer, None if countering initial offer
+        :param sender_offers: dict mapping agents to their offers
+        :return: Offer object
+        """
         raise NotImplementedError
 
     def check_accepted(self, offer, sender_offers):
+        """
+        Checks if a subset of sender_offers is to be accepted
+
+        :param offer: previous own offer
+        :param sender_offers: dict mapping agents to their offers
+        :return: a pair of dicts mapping agents to their offer for offers to be accepted
+        """
         raise NotImplementedError
 
     def accepted_offers(self, offer, sender_offers):
+        """
+        Save negotiation result
+
+        :param offer: Own offer
+        :param sender_offers: Offers accepted and confirmed for this offer
+        :return: None
+        """
         raise NotImplementedError
