@@ -1,3 +1,4 @@
 unittest
 pyyaml
 spade
+networkx
