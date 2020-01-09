@@ -128,6 +128,8 @@ class AgentBase(spade.agent.Agent):
         self.sender_behaviour = None
         self.receiver_behaviour = None
 
+        self.running = False
+
         super(AgentBase, self).__init__(self.jid, self.jid)
 
     async def setup(self):
@@ -138,6 +140,8 @@ class AgentBase(spade.agent.Agent):
         self.add_behaviour(self.sender_behaviour)
         self.add_behaviour(self.receiver_behaviour)
 
+        self.running = True
+
         logger.logger.log(
             logger.EVENT_AGENT_STARTED,
             name=self.id,
@@ -145,6 +149,31 @@ class AgentBase(spade.agent.Agent):
             jid=self.jid,
             policy=self.config.get_policy_name()
         )
+
+    def pause(self):
+        if self.running:
+            self.remove_behaviour(self.sender_behaviour)
+            self.remove_behaviour(self.receiver_behaviour)
+
+            logger.logger.log(
+                logger.EVENT_AGENT_KILLED,
+                self.id
+            )
+
+        self.running = False
+
+    def restore(self):
+        if not self.running:
+            self.add_behaviour(self.sender_behaviour)
+            self.add_behaviour(self.receiver_behaviour)
+
+            logger.logger.log(
+                logger.EVENT_AGENT_RESTARTED,
+                self.id
+            )
+
+        self.running = True
+
 
     def create_session(self):
         """

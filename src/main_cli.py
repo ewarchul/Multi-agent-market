@@ -1,10 +1,14 @@
-def initialize():
-    """initializes system"""
-    pass
+from run import global_agents
+import logger
 
 
 def shutdown():
     """turns the system off"""
+    for a in global_agents.values():
+        a.stop()
+
+    logger.logger.log(logger.EVENT_SYSTEM_CLOSE)
+
     return False
 
 
@@ -17,6 +21,8 @@ def kill_agent(agents):
     """ kills the specified agent"""
     for agent in agents:
         print("you killed: " + agent)
+        agent_id = int(agent)
+        global_agents[agent_id].pause()
 
 
 def restore_agent(agents):
@@ -24,13 +30,13 @@ def restore_agent(agents):
 
     for agent in agents:
         print("you restored: "+agent)
-        # agents.append(int(arg))
+        agent_id = int(agent)
+        global_agents[agent_id].restore()
 
 
 def main_loop():
     run = True
     while run:
-        initialize()
         command = input("waiting for command ...\n")
         command_list = command.split(" ")
         print(command_list)
@@ -46,6 +52,4 @@ def main_loop():
             pass
 
 
-if __name__ == "__main__":
-    main_loop()
 

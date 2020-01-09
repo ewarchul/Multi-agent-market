@@ -38,6 +38,7 @@ EVENTS_ALL = {
 
     EVENT_AGENT_STATE_CHANGED: ('id', 'reason', 'old_resource', 'resource', 'old_money', 'money'),
 
+    EVENT_SYSTEM_INITIALIZED: (),
     EVENT_SYSTEM_CLOSE: (),
     EVENT_CLI: ('command', 'args'),
     EVENT_EXCEPTION: ('where', 'type', 'exception'),
