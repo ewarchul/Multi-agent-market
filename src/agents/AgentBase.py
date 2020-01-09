@@ -157,7 +157,7 @@ class AgentBase(spade.agent.Agent):
 
             logger.logger.log(
                 logger.EVENT_AGENT_KILLED,
-                self.id
+                id=self.id
             )
 
         self.running = False
@@ -169,7 +169,7 @@ class AgentBase(spade.agent.Agent):
 
             logger.logger.log(
                 logger.EVENT_AGENT_RESTARTED,
-                self.id
+                id=self.id
             )
 
         self.running = True

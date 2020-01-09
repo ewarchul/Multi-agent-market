@@ -130,7 +130,9 @@ class AgentConfig(object):
         :return: None
         """
         with open(file_name, 'r') as f:
-            yaml_file = yaml.load(f)
+            yaml_file = yaml.safe_load(f)
+            if yaml_file is None:
+                yaml_file = {}
 
             self.initial_resource = yaml_file.get('initial-resource', DEFAULT_NUMERICAL_PARAM)
             self.production_cost = yaml_file.get('production-cost', DEFAULT_NUMERICAL_PARAM)

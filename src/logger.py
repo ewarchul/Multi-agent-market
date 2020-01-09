@@ -1,4 +1,4 @@
-from collections.abc import Collection
+from collections.abc import Iterable
 from datetime import datetime
 import os, sys
 
@@ -54,13 +54,15 @@ EVENTS_ALL = {
 logger = None
 
 
-def initialize_default_logger(log_file):
+def initialize_default_logger(log_file, use_stderr=False):
     """
 
-    :param log_file:
+    :param log_file: file object to log to
+    :param use_stderr: if True will log to stderr, else to stdout
     """
     global logger
-    streams = (sys.stdout, log_file) if log_file else sys.stdout,
+    std_stream = sys.stderr if use_stderr else sys.stdout
+    streams = (std_stream, log_file) if log_file else std_stream
     logger = Logger(streams, EVENTS_ALL)
 
 
@@ -75,7 +77,8 @@ class Logger(object):
     """
     SEPARATOR = '\t'
     ESCAPE = '"'
-    LINE_SEPARATOR = os.linesep
+    # https://stackoverflow.com/questions/4025760/python-file-write-creating-extra-carriage-return/41248005
+    LINE_SEPARATOR = '\n'
 
     def __init__(self, to, events):
         """ Creates logger
@@ -83,7 +86,7 @@ class Logger(object):
         :param to: a stream or a list of streams that logger will write to
         :param events: a dict-like where for every event there is a sequence of parameter names
         """
-        self.streams = to if isinstance(to, Collection) else [to]
+        self.streams = to if isinstance(to, Iterable) else [to]
         self.events = events
         self.handlers = {}
         self.columns_n = len(max(self.events.values(), key=len)) + 2
@@ -145,3 +148,4 @@ class Logger(object):
     def _write(self, line):
         for stream in self.streams:
             stream.write(f'{line}{self.LINE_SEPARATOR}')
+            stream.flush()

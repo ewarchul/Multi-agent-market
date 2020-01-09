@@ -115,8 +115,12 @@ class AgentNet(object):
         with open(filename, 'r') as network_file:
             yaml_network = yaml.load(network_file)
             self.init_num = yaml_network.get('agent_init_num', 2)
-            self.net_type = yaml_network.get('network_type', "complete")
+            self.net_type = yaml_network.get(
+                'network_type',
+                "custom" if 'network_connections' in yaml_network else 'complete'
+            )
             self.net_density = yaml_network.get('network_density', "MEDIUM")
             self.agents_policies = yaml_network.get('agents_policies', None)
             self.connections = yaml_network.get('network_connections', None)
+            self.create_network()
 
