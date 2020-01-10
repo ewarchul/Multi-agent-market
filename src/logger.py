@@ -1,4 +1,4 @@
-from collections.abc import Collection
+from collections.abc import Sequence
 from datetime import datetime
 import os, sys
 
@@ -7,31 +7,63 @@ EVENT_LOGGER_INITIALIZED = 'Logger initialized'
 EVENT_AGENT_KILLED = 'Agent killed'
 EVENT_AGENT_STARTED = 'Agent started'
 EVENT_AGENT_RESTARTED = 'Agent restarted'
+
+EVENT_AGENT_INITIAL_OFFER = 'Initial offer'
+EVENT_AGENT_OFFER_CHANGED = 'Offer changed'
+EVENT_AGENT_OFFER_ACCEPTED = 'Offer accepted'
+
+EVENT_AGENT_STATE_CHANGED = 'Agent state changed'
+
 EVENT_SYSTEM_INITIALIZED = 'System initialized'
 EVENT_SYSTEM_CLOSE = 'System closing'
 EVENT_CLI = 'CLI command received'
+EVENT_EXCEPTION = 'Exception occurred'
+EVENT_MESSAGE_SENT = 'Message sent'
+EVENT_MESSAGE_RECEIVED = 'Message received'
+EVENT_SERVER_NEGOTIATION_BREAKDOWN = 'Server negotiation breakdown'
+EVENT_ALL_CLIENTS_NEGOTIATION_BREAKDOWN = 'All clients negotiation breakdown'
+EVENT_CLIENT_NEGOTIATION_BREAKDOWN = 'Client negotiation breakdown'
+EVENT_SERVER_FAILED_TO_RESPOND = 'Server failed to respond'
 
 
 EVENTS_ALL = {
     EVENT_LOGGER_INITIALIZED: (),
     EVENT_AGENT_KILLED: ('id',),
-    EVENT_AGENT_STARTED: ('id', 'policy'),
+    EVENT_AGENT_STARTED: ('id', 'name', 'connections', 'jid', 'policy'),
     EVENT_AGENT_RESTARTED: ('id',),
+
+    EVENT_AGENT_INITIAL_OFFER: ('id', 'type', 'resource', 'money'),  # type as 'buy' or 'sell'
+    EVENT_AGENT_OFFER_CHANGED: ('id', 'type', 'prev_resource', 'prev_money', 'resource', 'money'),
+    EVENT_AGENT_OFFER_ACCEPTED: ('id', 'type', 'resource', 'money'),
+
+    EVENT_AGENT_STATE_CHANGED: ('id', 'reason', 'old_resource', 'resource', 'old_money', 'money'),
+
+    EVENT_SYSTEM_INITIALIZED: (),
     EVENT_SYSTEM_CLOSE: (),
-    EVENT_CLI: ('command', 'args')
+    EVENT_CLI: ('command', 'args'),
+    EVENT_EXCEPTION: ('where', 'type', 'exception'),
+    EVENT_MESSAGE_SENT: ('sender', 'receiver', 'content'),
+    EVENT_MESSAGE_RECEIVED: ('sender', 'receiver', 'content'),
+    EVENT_SERVER_NEGOTIATION_BREAKDOWN: ('id',),
+    EVENT_ALL_CLIENTS_NEGOTIATION_BREAKDOWN: ('id',),
+    EVENT_CLIENT_NEGOTIATION_BREAKDOWN: ('id', 'server_id'),
+    EVENT_SERVER_FAILED_TO_RESPOND: ('id', 'server_id')
 }
 
 
 logger = None
 
 
-def initialize_default_logger(log_file):
+def initialize_default_logger(log_file, use_stderr=False):
     """
 
-    :param log_file:
+    :param log_file: file object to log to
+    :param use_stderr: if True will log to stderr, else to stdout
     """
     global logger
-    logger = Logger((sys.stdout, log_file), EVENTS_ALL)
+    std_stream = sys.stderr if use_stderr else sys.stdout
+    streams = (std_stream, log_file) if log_file else std_stream
+    logger = Logger(streams, EVENTS_ALL)
 
 
 class Logger(object):
@@ -45,7 +77,8 @@ class Logger(object):
     """
     SEPARATOR = '\t'
     ESCAPE = '"'
-    LINE_SEPARATOR = os.linesep
+    # https://stackoverflow.com/questions/4025760/python-file-write-creating-extra-carriage-return/41248005
+    LINE_SEPARATOR = '\n'
 
     def __init__(self, to, events):
         """ Creates logger
@@ -53,7 +86,7 @@ class Logger(object):
         :param to: a stream or a list of streams that logger will write to
         :param events: a dict-like where for every event there is a sequence of parameter names
         """
-        self.streams = to if isinstance(to, Collection) else [to]
+        self.streams = to if isinstance(to, Sequence) else [to]
         self.events = events
         self.handlers = {}
         self.columns_n = len(max(self.events.values(), key=len)) + 2
@@ -115,3 +148,4 @@ class Logger(object):
     def _write(self, line):
         for stream in self.streams:
             stream.write(f'{line}{self.LINE_SEPARATOR}')
+            stream.flush()

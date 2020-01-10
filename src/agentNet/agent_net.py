@@ -3,9 +3,9 @@ import itertools
 import random
 import matplotlib.pyplot as plt
 import yaml
-from network_utils import *
+from agentNet.network_utils import *
 
-class AgentNet(nx.Graph):
+class AgentNet(object):
     """
     Class with agent network graph.
     """
@@ -16,9 +16,10 @@ class AgentNet(nx.Graph):
         :param net_type: type of graph {"complete", "random", "custom"}
         :param net_density: density of random graph {SPARSE, MEDIUM, DENSE}
         :param network: field which contains networkx's graph 
-        :param agents_policies: map from agent id to file link with agent policy 
+        :param agents_policies: map from agent id to file name with agent policy
         :param connections: map with nodes connections 
         """
+        super(AgentNet, self).__init__()
         self.init_num =  init_num 
         self.net_type = net_type 
         self.net_density = net_density 
@@ -114,8 +115,12 @@ class AgentNet(nx.Graph):
         with open(filename, 'r') as network_file:
             yaml_network = yaml.load(network_file)
             self.init_num = yaml_network.get('agent_init_num', 2)
-            self.net_type = yaml_network.get('network_type', "complete")
+            self.net_type = yaml_network.get(
+                'network_type',
+                "custom" if 'network_connections' in yaml_network else 'complete'
+            )
             self.net_density = yaml_network.get('network_density', "MEDIUM")
             self.agents_policies = yaml_network.get('agents_policies', None)
             self.connections = yaml_network.get('network_connections', None)
+            self.create_network()
 
