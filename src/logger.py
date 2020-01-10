@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
 from datetime import datetime
 import os, sys
 
@@ -86,7 +86,7 @@ class Logger(object):
         :param to: a stream or a list of streams that logger will write to
         :param events: a dict-like where for every event there is a sequence of parameter names
         """
-        self.streams = to if isinstance(to, Iterable) else [to]
+        self.streams = to if isinstance(to, Sequence) else [to]
         self.events = events
         self.handlers = {}
         self.columns_n = len(max(self.events.values(), key=len)) + 2
