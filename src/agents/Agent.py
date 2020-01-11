@@ -2,6 +2,8 @@ from agents.AgentBase import AgentBase
 from config import AgentConfig
 from agents.Offer import Offer, OfferType
 
+import logger
+
 import threading
 import random
 import spade
@@ -24,23 +26,56 @@ class Agent(AgentBase):
         """
         Behaviour for droping storage product.
         """
+        def __init__(self):
+            super(Agent.DropProduct, self).__init__()
         async def run(self):
-            pass
-        async def on_end(self):
-            pass
-        async def on_start(self):
-            pass
-    class NeedsGeneration(spade.behaviour.CyclicBehaviour):
+            resource_at_start = self.agent.config.initial_resource 
+            money_at_start = self.agent.config.initial_money 
+            if self.agent.config.initial_resource > self.agent.config.storage_limit:
+                self.agent.config.initial_resource = self.agent.config.storage_limit 
+                self.agent.config.initial_money -= self.agent.config.utilization_cost
+                self.agent.config.money_in_use = self.agent.config.initial_money
+                logger.logger.log(
+                        logger.EVENT_AGENT_STATE_CHANGED,
+                            id=self.agent.jid,
+                            reason='Extra product storage',
+                            old_resource = resource_at_start,
+                            resource=self.agent.config.initial_resource,
+                            old_money=money_at_start,
+                            money=self.agent.config.initial_money
+                        )
+    class GenerateNeeds(spade.behaviour.CyclicBehaviour):
         """
         Behaviour for needs generation.
         """
+        def __init__(self):
+            super(Agent.GenerateNeeds, self).__init__()
+
         async def run(self):
             pass
         async def on_end(self):
             pass
         async def on_start(self):
             pass
+    class GenerateIncome(spade.behaviour.CyclicBehaviour):
+        """
+        Behaviour for income generate. 
+        """
+        def __init__(self):
+            super(Agent.GenerateNeeds, self).__init__()
+
+        async def run(self):
+            pass
+        async def on_end(self):
+            pass
+        async def on_start(self):
+            pass
+
     async def setup(self):
+
+        self.drop_product_behaviour = self.DropProduct()
+        self.add_behaviour(self.drop_product_behaviour)
+
         pass
     def __init__(self, agent_id, connections, config):
         super(Agent, self).__init__(agent_id, connections, config)
