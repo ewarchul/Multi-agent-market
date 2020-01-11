@@ -8,7 +8,7 @@ import threading
 class Agent(AgentBase):
     def __init__(self, agent_id, connections, config):
         super(Agent, self).__init__(agent_id, connections, config)
-    def get_initial_buy_offer(self, resource_amount, price):
+    def get_initial_buy_offer(self, resource_amount=100, price=100):
         """
         Prepares initial buy offer
 
@@ -29,7 +29,7 @@ class Agent(AgentBase):
             else:
                 return None  
         return buy_offer
-    def get_initial_sell_offer(self, resource_amount, price):
+    def get_initial_sell_offer(self, resource_amount=100, price=100):
         """
         Prepares initial sell offer
 
@@ -71,7 +71,7 @@ class Agent(AgentBase):
                     money = new_price,
                     is_sell_offer = True
                 )
-    def gen_timeout(self):
+    def gen_timeout():
         """
         Generates timeout which depends on agent internal config.
         """
@@ -88,7 +88,7 @@ class Agent(AgentBase):
             self.config.resource_in_use += offer.resource
 
         return {s: o for s, o in sender_offers.items() if o.type == OfferType.ACCEPTING_OFFER}
-    def accepted_offers(offer, sender_offers):
+    def accepted_offers(self, offer, sender_offers):
         """
         Save negotiation result
 
