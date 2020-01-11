@@ -50,11 +50,13 @@ class AgentConfig(object):
         Creates agent configuration with default parameters
         """
         self.initial_resource = DEFAULT_NUMERICAL_PARAM
+        self.resource_in_use = self.initial_resource 
         self.production_cost = DEFAULT_NUMERICAL_PARAM  # per resource unit
         self.storage_limit = DEFAULT_NUMERICAL_PARAM
         self.utilization_cost = DEFAULT_NUMERICAL_PARAM
         self.needs_satisfaction_timeout = DEFAULT_NUMERICAL_PARAM
         self.initial_money = DEFAULT_NUMERICAL_PARAM
+        self.money_in_use = self.initial_money
         self._production_limit = default_production_limit
         self._production_limit_args = DEFAULT_FUN_ARGS
         self._needs = default_needs

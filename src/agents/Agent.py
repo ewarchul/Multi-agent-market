@@ -36,9 +36,9 @@ class Agent(AgentBase):
         """
         resource_lock = threading.Lock()  
         with resource_lock:
-            if self.config.initial_resource >= resource_amount:
+            if self.config.resource_in_use >= resource_amount:
 
-                self.config.initial_resource -= resource_amount 
+                self.config.resource_in_use -= resource_amount 
 
                 sell_offer = Offer(
                     offer_type = Offer.INITIAL_OFFER,
