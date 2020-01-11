@@ -19,7 +19,7 @@ class Agent(AgentBase):
         
     def __init__(self, agent_id, connections, config):
         super(Agent, self).__init__(agent_id, connections, config)
-    def get_initial_buy_offer(self, resource_amount=1, price=1):
+    def get_initial_buy_offer(self, resource_amount=100, price=100):
         """
         Prepares initial buy offer
 
@@ -32,7 +32,7 @@ class Agent(AgentBase):
                 self.config.money_in_use -= price
 
                 buy_offer = Offer(
-                    offer_type = Offer.INITIAL_OFFER,
+                    offer_type = OfferType.INITIAL_OFFER,
                     resource = resource_amount,
                     money = price,
                     is_sell_offer = False
@@ -40,7 +40,7 @@ class Agent(AgentBase):
             else:
                 return None  
         return buy_offer
-    def get_initial_sell_offer(self, resource_amount=1, price=1):
+    def get_initial_sell_offer(self, resource_amount=-100, price=-100):
         """
         Prepares initial sell offer
 
@@ -53,7 +53,7 @@ class Agent(AgentBase):
                 self.config.resource_in_use -= resource_amount 
 
                 sell_offer = Offer(
-                    offer_type = Offer.INITIAL_OFFER,
+                    offer_type = OfferType.INITIAL_OFFER,
                     resource = resource_amount,
                     money = price,
                     is_sell_offer = True
@@ -72,13 +72,18 @@ class Agent(AgentBase):
         :param sender_offers: dict mapping agents to their offers
         :return: Offer object
         """
-        new_price = 0.9*offer.money  
-        new_resource_amount = 1.1*offer.resource
+        if offer is None:
+            new_price = 0.9*min([o.money for a, o in sender_offers.items()])
+            new_resource_amount = 1.1*min([o.resource for a, o in sender_offers.items()])
+        else:
+            new_price = 0.9*offer.money  
+            new_resource_amount = 1.1*offer.resource
+        resource_lock = threading.Lock()  
         with resource_lock:
             self.config.resource_in_use -= 0.1*new_resource_amount
         return Offer(
-                    offer_type = Offer.COUNTER_OFFER,
-                    resource = offer.resource,
+                    offer_type = OfferType.COUNTER_OFFER,
+                    resource = new_resource_amount, 
                     money = new_price,
                     is_sell_offer = True
                 )
@@ -94,8 +99,8 @@ class Agent(AgentBase):
         :return: a pair of dicts mapping agents to their offer for offers to be accepted
         """
         rejected_offers = {s: o for s, o in sender_offers.items() if o.type != OfferType.ACCEPTING_OFFER}
-
-        for offer in rejected_offers.items():
+        
+        for offer in rejected_offers.values():
             self.config.resource_in_use += offer.resource
 
         return {s: o for s, o in sender_offers.items() if o.type == OfferType.ACCEPTING_OFFER}
