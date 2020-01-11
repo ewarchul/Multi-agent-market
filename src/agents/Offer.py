@@ -5,7 +5,7 @@ class OfferType(enum.Enum):
     """
     Offer types
     """
-    INITAL_OFFER = 'Initial'
+    INITIAL_OFFER = 'Initial'
     COUNTER_OFFER = 'Counter'
     ACCEPTING_OFFER = 'Accepting'
     BREAKDOWN_OFFER = 'Breakdown'

@@ -303,7 +303,7 @@ class AgentBase(spade.agent.Agent):
             partners_sessions = {a: sess for a, sess in zip(senders, sessions)}
             sender_offers = {s: o for s, o in zip(senders, offers) if s in partners}
 
-            accept_offers = self.check_accepted(offer, sender_offers)
+            accept_offers = self.check_accepted(sender_offers)
 
             if accept_offers:
                 confirmation_offers = self.finalize_negotiations(
