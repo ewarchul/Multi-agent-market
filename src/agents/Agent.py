@@ -3,33 +3,70 @@ from config import AgentConfig
 from agents.Offer import Offer, OfferType
 
 import threading
+import random
 import spade
 
 
 class Agent(AgentBase):
-    class Produce(spade.behaviour.CyclicBehaviour):
+    class GenerateProduct(spade.behaviour.CyclicBehaviour):
         """
         Behaviour for producing storage product. 
         """
-        pass
-    class DropStorage(spade.behaviour.CyclicBehaviour):
+        def __init__(self):
+            super(Agent.GenerateProduct, self).__init__()
+        async def run(self):
+            pass
+        async def on_end(self):
+            pass
+        async def on_start(self):
+            pass
+    class DropProduct(spade.behaviour.CyclicBehaviour):
         """
         Behaviour for droping storage product.
         """
-        
+        async def run(self):
+            pass
+        async def on_end(self):
+            pass
+        async def on_start(self):
+            pass
+    class NeedsGeneration(spade.behaviour.CyclicBehaviour):
+        """
+        Behaviour for needs generation.
+        """
+        async def run(self):
+            pass
+        async def on_end(self):
+            pass
+        async def on_start(self):
+            pass
+    async def setup(self):
+        pass
     def __init__(self, agent_id, connections, config):
         super(Agent, self).__init__(agent_id, connections, config)
+    def pretty_print_me(self):
+        """
+        Prints agent params.
+        """
+        print(f"\n AGENT_ID: {self.jid} \n \
+                TOTAL RESOURCE = {self.config.initial_resource} \n \
+                RESOURCE IN USE =  {self.config.resource_in_use} \n \
+                STORAGE LIMIT =  {self.config.storage_limit} \n \
+                TOTAL MONEY = {self.config.initial_money} $ \n \
+                MONEY IN USE {self.config.money_in_use} $ \n")
     def get_initial_buy_offer(self, resource_amount=100, price=100):
         """
         Prepares initial buy offer
 
         :return: Offer object with type = INITIAL_OFFER and is_sell_offer = False
         """
+        print("----------------- BEFOER INITIAL BUY OFFER ------------\n")
+        self.pretty_print_me()
         money_lock = threading.Lock()  
         with money_lock:
-            if self.config.money_in_use >= price:
+            if self.config.resource_in_use >= resource_amount:
 
-                self.config.money_in_use -= price
+                self.config.resource_in_use -= resource_amount
 
                 buy_offer = Offer(
                     offer_type = OfferType.INITIAL_OFFER,
@@ -39,13 +76,17 @@ class Agent(AgentBase):
                 )
             else:
                 return None  
+        print("----------------- AFTER INITIAL BUY OFFER ------------\n")
+        self.pretty_print_me()
         return buy_offer
-    def get_initial_sell_offer(self, resource_amount=-100, price=-100):
+    def get_initial_sell_offer(self, resource_amount=100, price=100):
         """
         Prepares initial sell offer
 
         :return: Offer object with type = INITIAL_OFFER and is_sell_offer = True
         """
+        print("----------------- BEFORE INITIAL SELL OFFER ------------\n")
+        self.pretty_print_me()
         resource_lock = threading.Lock()  
         with resource_lock:
             if self.config.resource_in_use >= resource_amount:
@@ -60,6 +101,8 @@ class Agent(AgentBase):
                 )
             else:
                 return None  
+        print("----------------- AFTER INITIAL SELL OFFER ------------\n")
+        self.pretty_print_me()
         return sell_offer
     def get_counter_offer(self, offer, sender_offers):
         """
@@ -72,15 +115,16 @@ class Agent(AgentBase):
         :param sender_offers: dict mapping agents to their offers
         :return: Offer object
         """
+        print("----------------- BEFORE COUNTER OFFER ------------\n")
+        self.pretty_print_me()
         if offer is None:
             new_price = 0.9*min([o.money for a, o in sender_offers.items()])
             new_resource_amount = 1.1*min([o.resource for a, o in sender_offers.items()])
         else:
             new_price = 0.9*offer.money  
             new_resource_amount = 1.1*offer.resource
-        resource_lock = threading.Lock()  
-        with resource_lock:
-            self.config.resource_in_use -= 0.1*new_resource_amount
+        print("----------------- AFTER COUNTER OFFER ------------\n")
+        self.pretty_print_me()
         return Offer(
                     offer_type = OfferType.COUNTER_OFFER,
                     resource = new_resource_amount, 
@@ -98,13 +142,15 @@ class Agent(AgentBase):
         :param sender_offers: dict mapping agents to their offers
         :return: a pair of dicts mapping agents to their offer for offers to be accepted
         """
-        rejected_offers = {s: o for s, o in sender_offers.items() if o.type != OfferType.ACCEPTING_OFFER}
-        
-        for offer in rejected_offers.values():
-            self.config.resource_in_use += offer.resource
 
-        return {s: o for s, o in sender_offers.items() if o.type == OfferType.ACCEPTING_OFFER}
-    def accepted_offers(self, offer, sender_offers):
+        offers_sorted = dict(sorted(sender_offers.items(), key=lambda x: (x[1].money, -x[1].resource)))
+
+        accepted_offers = []
+        for offer in offers_sorted.items():
+            if self.config.money_in_use - offer[1].money and random.random() > 0.8:
+                accepted_offers.append(offer) 
+        return dict(accepted_offers) 
+    def accepted_offers(self, offer, sender_offers, agent_role):
         """
         Save negotiation result
 
@@ -114,9 +160,21 @@ class Agent(AgentBase):
         """
         resource_sold  = sum([offer.resource for agent, offer in sender_offers.items()])
         money_earnt  = sum([offer.money for agent, offer in sender_offers.items()])
+        print("=========== DURING TRANSACTION ===========\n")
+        self.pretty_print_me()
         resource_lock = threading.Lock()  
         with resource_lock:
-            self.config.initial_resource -= resource_sold
-            self.config.initial_money += money_earnt
-            self.config.money_in_use += money_earnt
+            if agent_role is "SERVER" and offer.type is OfferType.CONFIRMATION_OFFER:
+                self.config.initial_resource -= resource_sold
+                self.config.resource_in_use = self.config.initial_resource
+                self.config.initial_money += money_earnt
+                self.config.money_in_use += money_earnt
+            elif agent_role is "CLIENT" and offer.type is OfferType.CONFIRMATION_OFFER:
+                self.config.initial_resource += offer.resource
+                self.config.resource_in_use = self.config.initial_resource
+                self.config.initial_money -= offer.money 
+                self.config.money_in_use -= offer.money
+        print("=========== AFTER FINALIZED TRANSACTION ===========\n")
+        self.pretty_print_me()
+        
 

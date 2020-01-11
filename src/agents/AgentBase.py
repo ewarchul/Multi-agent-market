@@ -314,7 +314,7 @@ class AgentBase(spade.agent.Agent):
             offer = self.get_counter_offer(offer, sender_offers)
             offer.other_offers = list(sender_offers.values())
 
-        self.accepted_offers(offer, confirmation_offers)
+        self.accepted_offers(offer, confirmation_offers, "SERVER")
 
         if not offer:
             logger.logger.log(
@@ -393,7 +393,7 @@ class AgentBase(spade.agent.Agent):
                 own_offer = make_confirmation(partner_offer)
                 session.send(own_offer, partner, partner_session)
 
-        self.accepted_offers(own_offer, {partner: partner_offer} if partner_offer else {})
+        self.accepted_offers(own_offer, {partner: partner_offer} if partner_offer else {}, "CLIENT")
 
     def get_negotiation_partners(self, selling):
         """
