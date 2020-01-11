@@ -81,12 +81,12 @@ class Agent(AgentBase):
         :param sender_offers: dict mapping agents to their offers
         :return: a pair of dicts mapping agents to their offer for offers to be accepted
         """
-        rejected_offers = {s: o for s, o in sender_offers if o.type != OfferType.ACCEPTING_OFFER}
+        rejected_offers = {s: o for s, o in sender_offers.items() if o.type != OfferType.ACCEPTING_OFFER}
 
         for offer in rejected_offers.items():
             self.config.resource_in_use += offer.resource
 
-        return {s: o for s, o in sender_offers if o.type == OfferType.ACCEPTING_OFFER}
+        return {s: o for s, o in sender_offers.items() if o.type == OfferType.ACCEPTING_OFFER}
     def accepted_offers(offer, sender_offers):
         """
         Save negotiation result
@@ -95,8 +95,8 @@ class Agent(AgentBase):
         :param sender_offers: Offers accepted and confirmed for this offer
         :return: None
         """
-        resource_sold  = sum([offer.resource for agent, offer in sender_offers])
-        money_earnt  = sum([offer.money for agent, offer in sender_offers])
+        resource_sold  = sum([offer.resource for agent, offer in sender_offers.items()])
+        money_earnt  = sum([offer.money for agent, offer in sender_offers.items()])
         resource_lock = threading.Lock()  
         with resource_lock:
             self.config.initial_resource -= resource_sold
