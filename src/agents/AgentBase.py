@@ -222,7 +222,7 @@ class AgentBase(spade.agent.Agent):
                 type='Invalid offer object',
                 exc=str(offer)
             )
-        elif not offer.type == OfferType.INITAL_OFFER:
+        elif not offer.type == OfferType.INITIAL_OFFER:
             logger.logger.log(
                 logger.EVENT_EXCEPTION,
                 where='received_msg_without_session',
@@ -364,7 +364,7 @@ class AgentBase(spade.agent.Agent):
 
         timeout = self.get_timeout()
 
-        while partner_offer.type in (OfferType.INITAL_OFFER, OfferType.COUNTER_OFFER):
+        while partner_offer.type in (OfferType.INITIAL_OFFER, OfferType.COUNTER_OFFER):
             session.send(own_offer, partner, partner_session)
 
             partner_offer = None
