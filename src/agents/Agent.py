@@ -19,7 +19,7 @@ class Agent(AgentBase):
         
     def __init__(self, agent_id, connections, config):
         super(Agent, self).__init__(agent_id, connections, config)
-    def get_initial_buy_offer(self, resource_amount, price):
+    def get_initial_buy_offer(self, resource_amount=1, price=1):
         """
         Prepares initial buy offer
 
@@ -40,7 +40,7 @@ class Agent(AgentBase):
             else:
                 return None  
         return buy_offer
-    def get_initial_sell_offer(self, resource_amount, price):
+    def get_initial_sell_offer(self, resource_amount=1, price=1):
         """
         Prepares initial sell offer
 
@@ -113,5 +113,5 @@ class Agent(AgentBase):
         with resource_lock:
             self.config.initial_resource -= resource_sold
             self.config.initial_money += money_earnt
-            self.config.money_in_ise += money_earnt
+            self.config.money_in_use += money_earnt
 
