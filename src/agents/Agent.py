@@ -2,6 +2,7 @@ from agents.AgentBase import AgentBase
 from config import AgentConfig
 from agents.Offer import Offer, OfferType
 
+import threading
 
 
 class Agent(AgentBase):
@@ -70,7 +71,7 @@ class Agent(AgentBase):
                     money = new_price,
                     is_sell_offer = True
                 )
-    def gen_timeout():
+    def gen_timeout(self):
         """
         Generates timeout which depends on agent internal config.
         """
