@@ -3,9 +3,20 @@ from config import AgentConfig
 from agents.Offer import Offer, OfferType
 
 import threading
+import spade
 
 
 class Agent(AgentBase):
+    class Produce(spade.behaviour.CyclicBehaviour):
+        """
+        Behaviour for producing storage product. 
+        """
+        pass
+    class DropStorage(spade.behaviour.CyclicBehaviour):
+        """
+        Behaviour for droping storage product.
+        """
+        
     def __init__(self, agent_id, connections, config):
         super(Agent, self).__init__(agent_id, connections, config)
     def get_initial_buy_offer(self, resource_amount, price):
@@ -71,7 +82,7 @@ class Agent(AgentBase):
                     money = new_price,
                     is_sell_offer = True
                 )
-    def gen_timeout(self):
+    def get_timeout(self):
         """
         Generates timeout which depends on agent internal config.
         """
