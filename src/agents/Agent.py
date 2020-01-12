@@ -117,6 +117,9 @@ class Agent(AgentBase):
                         money=self.agent.config.initial_money
                         )
     async def setup(self):
+
+        super(Agent, self).setup()
+
         self.generate_product_behaviour = self.GenerateProduct()
         self.add_behaviour(self.generate_product_behaviour)
 
