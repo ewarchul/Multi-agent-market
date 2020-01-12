@@ -13,6 +13,7 @@ EVENT_AGENT_OFFER_CHANGED = 'Offer changed'
 EVENT_AGENT_OFFER_ACCEPTED = 'Offer accepted'
 
 EVENT_AGENT_STATE_CHANGED = 'Agent state changed'
+EVENT_AGENT_BANKRUPTED = 'Agent bankrupted'
 
 EVENT_SYSTEM_INITIALIZED = 'System initialized'
 EVENT_SYSTEM_CLOSE = 'System closing'
@@ -37,6 +38,7 @@ EVENTS_ALL = {
     EVENT_AGENT_OFFER_ACCEPTED: ('id', 'type', 'resource', 'money'),
 
     EVENT_AGENT_STATE_CHANGED: ('id', 'reason', 'old_resource', 'resource', 'old_money', 'money'),
+    EVENT_AGENT_BANKRUPTED: ('id',),
 
     EVENT_SYSTEM_INITIALIZED: (),
     EVENT_SYSTEM_CLOSE: (),

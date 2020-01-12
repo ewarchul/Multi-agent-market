@@ -255,17 +255,18 @@ class AgentBase(spade.agent.Agent):
         """
         session = self.create_session()
 
-        def run():
-            offer = self.get_initial_sell_offer() if selling else self.get_initial_buy_offer()
-            partners = self.get_negotiation_partners(selling)
+        offer = self.get_initial_sell_offer() if selling else self.get_initial_buy_offer()
+        if offer:
+            def run():
+                partners = self.get_negotiation_partners(selling)
 
-            self.negotiate_server(session, offer, partners)
+                self.negotiate_server(session, offer, partners)
 
-            session.end()
+                session.end()
 
-        t = threading.Thread(target=run)
-        t.daemon = True
-        t.start()
+            t = threading.Thread(target=run)
+            t.daemon = True
+            t.start()
 
     def negotiate_server(self, session, initial_offer, partners):
         """
