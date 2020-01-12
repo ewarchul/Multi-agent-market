@@ -4,10 +4,11 @@ from agents.Offer import Offer, OfferType
 
 import logger
 
+import datetime
 import threading
 import random
+import asyncio
 import spade
-
 
 class Agent(AgentBase):
     class GenerateProduct(spade.behaviour.CyclicBehaviour):
@@ -17,11 +18,27 @@ class Agent(AgentBase):
         def __init__(self):
             super(Agent.GenerateProduct, self).__init__()
         async def run(self):
-            pass
-        async def on_end(self):
-            pass
-        async def on_start(self):
-            pass
+            await asyncio.sleep(self.agent.TIME_QUANT)
+            current_time = datetime.datetime.now() 
+            dt = datetime.datetime.now() + datetime.timedelta(seconds=self.agent.TIME_QUANT) 
+            resource_at_start = self.agent.config.initial_resource 
+            money_at_start = self.agent.config.initial_money 
+            if self.agent.config.initial_resource < self.agent.config.storage_limit and random.random() > 0.8:
+                production_limit = self.agent.config.production_limit(current_time, dt)
+                generated_product = random.uniform(0, production_limit)
+                self.agent.config.initial_money -= generated_product*self.agent.config.production_cost 
+                self.agent.config.initial_resource += generated_product 
+                self.agent.config.resource_in_use = self.agent.config.initial_resource
+                self.agent.config.money_in_use = self.agent.config.initial_money
+                logger.logger.log(
+                        logger.EVENT_AGENT_STATE_CHANGED,
+                            id=self.agent.jid,
+                            reason='Extra product generation',
+                            old_resource = resource_at_start,
+                            resource=self.agent.config.initial_resource,
+                            old_money=money_at_start,
+                            money=self.agent.config.initial_money
+                        )
     class DropProduct(spade.behaviour.CyclicBehaviour):
         """
         Behaviour for droping storage product.
@@ -29,6 +46,7 @@ class Agent(AgentBase):
         def __init__(self):
             super(Agent.DropProduct, self).__init__()
         async def run(self):
+            await asyncio.sleep(self.agent.TIME_QUANT)
             resource_at_start = self.agent.config.initial_resource 
             money_at_start = self.agent.config.initial_money 
             if self.agent.config.initial_resource > self.agent.config.storage_limit:
@@ -38,7 +56,7 @@ class Agent(AgentBase):
                 logger.logger.log(
                         logger.EVENT_AGENT_STATE_CHANGED,
                             id=self.agent.jid,
-                            reason='Extra product storage',
+                            reason='Extra product storage penalty',
                             old_resource = resource_at_start,
                             resource=self.agent.config.initial_resource,
                             old_money=money_at_start,
@@ -50,35 +68,80 @@ class Agent(AgentBase):
         """
         def __init__(self):
             super(Agent.GenerateNeeds, self).__init__()
-
         async def run(self):
-            pass
-        async def on_end(self):
-            pass
-        async def on_start(self):
-            pass
+            await asyncio.sleep(self.agent.TIME_QUANT)
+            current_time = datetime.datetime.now() 
+            dt = datetime.datetime.now() + datetime.timedelta(seconds=self.agent.TIME_QUANT) 
+            if self.agent.config.current_needs == self.agent.config.initial_resource:
+                self.agent.config.current_needs = self.agent.config.needs(current_time, dt) 
+    class NeedsPenalty(spade.behaviour.CyclicBehaviour):
+        """
+        Behaviour for needs statisfaction penalty. 
+        """
+        def __init__(self):
+            super(Agent.NeedsPenalty, self).__init__()
+        async def run(self):
+            await asyncio.sleep(5)#self.agent.config.needs_satisfaction_timeout)
+            money_at_start = self.agent.config.initial_money 
+            self.agent.config.initial_money -= self.agent.config.needs_satisfaction_cost 
+            self.agent.config.money_in_use = self.agent.config.initial_money
+            logger.logger.log(
+                        logger.EVENT_AGENT_STATE_CHANGED,
+                            id=self.agent.jid,
+                            reason='Needs statisfaction penalty',
+                            old_resource = self.agent.config.initial_resource,
+                            resource=self.agent.config.initial_resource,
+                            old_money=money_at_start,
+                            money=self.agent.config.initial_money
+                        )
     class GenerateIncome(spade.behaviour.CyclicBehaviour):
         """
         Behaviour for income generate. 
         """
         def __init__(self):
-            super(Agent.GenerateNeeds, self).__init__()
-
+            super(Agent.GenerateIncome, self).__init__()
         async def run(self):
-            pass
-        async def on_end(self):
-            pass
-        async def on_start(self):
-            pass
-
+            await asyncio.sleep(5)#self.agent.config.income_time)
+            current_time = datetime.datetime.now() 
+            dt = datetime.datetime.now() + datetime.timedelta(seconds=self.agent.TIME_QUANT) 
+            money_at_start = self.agent.config.initial_money 
+            self.agent.config.initial_money += self.agent.config.income(current_time, dt) 
+            self.agent.config.money_in_use += self.agent.config.initial_money 
+            logger.logger.log(
+                        logger.EVENT_AGENT_STATE_CHANGED,
+                        id=self.agent.jid,
+                        reason='Money income',
+                        old_resource = self.agent.config.initial_resource,
+                        resource=self.agent.config.initial_resource,
+                        old_money=money_at_start,
+                        money=self.agent.config.initial_money
+                        )
     async def setup(self):
+        self.generate_product_behaviour = self.GenerateProduct()
+        self.add_behaviour(self.generate_product_behaviour)
+
+        self.generate_income_behaviour = self.GenerateIncome()
+        self.add_behaviour(self.generate_income_behaviour)
+
+        self.generate_needs_behaviour = self.GenerateNeeds()
+        self.add_behaviour(self.generate_needs_behaviour)
 
         self.drop_product_behaviour = self.DropProduct()
         self.add_behaviour(self.drop_product_behaviour)
 
-        pass
+        self.needs_penalty_behaviour = self.NeedsPenalty()
+        self.add_behaviour(self.needs_penalty_behaviour)
+
     def __init__(self, agent_id, connections, config):
+
+        self.generate_product_behaviour = None
+        self.generate_income_behaviour = None
+        self.generate_needs_behaviour = None 
+        self.drop_product_behaviour = None 
+        self.needs_penalty_behaviour = None 
+
         super(Agent, self).__init__(agent_id, connections, config)
+
     def pretty_print_me(self):
         """
         Prints agent params.
@@ -177,7 +240,6 @@ class Agent(AgentBase):
         :param sender_offers: dict mapping agents to their offers
         :return: a pair of dicts mapping agents to their offer for offers to be accepted
         """
-
         offers_sorted = dict(sorted(sender_offers.items(), key=lambda x: (x[1].money, -x[1].resource)))
 
         accepted_offers = []

@@ -55,12 +55,15 @@ class AgentConfig(object):
         self.storage_limit = DEFAULT_NUMERICAL_PARAM
         self.utilization_cost = DEFAULT_NUMERICAL_PARAM
         self.needs_satisfaction_timeout = DEFAULT_NUMERICAL_PARAM
+        self.needs_satisfaction_cost = DEFAULT_NUMERICAL_PARAM
         self.initial_money = DEFAULT_NUMERICAL_PARAM
         self.money_in_use = self.initial_money
         self._production_limit = default_production_limit
         self._production_limit_args = DEFAULT_FUN_ARGS
+        self.current_needs = DEFAULT_NUMERICAL_PARAM
         self._needs = default_needs
         self._needs_args = DEFAULT_FUN_ARGS
+        self.income_time = DEFAULT_NUMERICAL_PARAM
         self._income = default_income
         self._income_args = DEFAULT_FUN_ARGS
         self._policy_builder = Policy
