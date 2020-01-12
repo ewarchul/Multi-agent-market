@@ -118,7 +118,7 @@ class Agent(AgentBase):
                         )
     async def setup(self):
 
-        super(Agent, self).setup()
+        await super(Agent, self).setup()
 
         self.generate_product_behaviour = self.GenerateProduct()
         self.add_behaviour(self.generate_product_behaviour)
