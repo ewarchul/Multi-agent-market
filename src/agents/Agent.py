@@ -316,9 +316,10 @@ class Agent(AgentBase):
     def check_satisfaction(self):
         with self.state_lock:
             if self.current_needs > 0:
-                penalty = self.current_needs * self.config.needs_satisfaction_penalty
+                penalty = self.current_needs * self.config.needs_satisfaction_cost
 
                 self.modify_state(0, -penalty, 'Needs satisfaction penalty')
+                self.current_needs = 0
 
     def bankrupt(self):
         self.pause()
@@ -329,5 +330,5 @@ class Agent(AgentBase):
 
         logger.logger.log(
             logger.EVENT_AGENT_BANKRUPTED,
-            self.id
+            id=self.id
         )

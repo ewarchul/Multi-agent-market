@@ -1,4 +1,8 @@
-class Policy(object):
+from policies.policy import Policy
+from agents.Offer import Offer, OfferType
+
+
+class LazyPolicy(Policy):
     """
     Policy base class
 
@@ -11,31 +15,31 @@ class Policy(object):
         :param agent: The agent
         :param args: Additional arguments
         """
-        self.agent = agent
+        super(LazyPolicy, self).__init__(agent, *args)
 
     def produce(self, limit):
         """
         :return: Value to produce, 0 if don't
         """
-        raise NotImplementedError
+        return 0
 
     def drop_storage(self):
         """
         :return: Value of resource to drop, 0 if don't
         """
-        raise NotImplementedError
+        return 0
 
     def initial_buy_offer(self):
         """
         :return: Initial buy offer or None if don't buy
         """
-        raise NotImplementedError
+        return None
 
     def initial_sell_offer(self):
         """
         :return: Initial sell offer or None if don't sell
         """
-        raise NotImplementedError
+        return None
 
     def buy_counter_offer(self, own_offer, other_offers):
         """
@@ -43,7 +47,7 @@ class Policy(object):
         :param other_offers: a dict of offers to counter
         :return: a counter or breakdown offer
         """
-        raise NotImplementedError
+        return Offer(OfferType.BREAKDOWN_OFFER, True, 0, 0)
 
     def sell_counter_offer(self, own_offer, other_offers):
         """
@@ -51,4 +55,4 @@ class Policy(object):
         :param other_offers: a dict of offers to counter
         :return: a counter or breakdown offer
         """
-        raise NotImplementedError
+        return Offer(OfferType.BREAKDOWN_OFFER, False, 0, 0)
