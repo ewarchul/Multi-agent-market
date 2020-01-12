@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
-import os, sys
+import sys
+from contextlib import ContextDecorator
 
 
 EVENT_LOGGER_INITIALIZED = 'Logger initialized'
@@ -13,6 +14,7 @@ EVENT_AGENT_OFFER_CHANGED = 'Offer changed'
 EVENT_AGENT_OFFER_ACCEPTED = 'Offer accepted'
 
 EVENT_AGENT_STATE_CHANGED = 'Agent state changed'
+EVENT_AGENT_BANKRUPTED = 'Agent bankrupted'
 
 EVENT_SYSTEM_INITIALIZED = 'System initialized'
 EVENT_SYSTEM_CLOSE = 'System closing'
@@ -37,6 +39,7 @@ EVENTS_ALL = {
     EVENT_AGENT_OFFER_ACCEPTED: ('id', 'type', 'resource', 'money'),
 
     EVENT_AGENT_STATE_CHANGED: ('id', 'reason', 'old_resource', 'resource', 'old_money', 'money'),
+    EVENT_AGENT_BANKRUPTED: ('id',),
 
     EVENT_SYSTEM_INITIALIZED: (),
     EVENT_SYSTEM_CLOSE: (),
@@ -149,3 +152,21 @@ class Logger(object):
         for stream in self.streams:
             stream.write(f'{line}{self.LINE_SEPARATOR}')
             stream.flush()
+
+
+class ExceptionCatcher(ContextDecorator):
+    def __init__(self, where):
+        self.where = where
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            logger.log(
+                EVENT_EXCEPTION,
+                where=self.where,
+                type=exc_type,
+                exception=exc_val
+            )
+        return True  # suppress exception

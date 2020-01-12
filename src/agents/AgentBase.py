@@ -40,28 +40,29 @@ class AgentBase(spade.agent.Agent):
         async def run(self):
             await asyncio.sleep(self.agent.TIME_QUANT)
 
-            sessions = self.agent.get_sessions()
-            for sess in sessions:
-                for msg in sess.take_all_out_messages():
-                    try:
-                        await self.send(msg.serialize())
+            with logger.ExceptionCatcher('SendMessages'):
+                sessions = self.agent.get_sessions()
+                for sess in sessions:
+                    for msg in sess.take_all_out_messages():
+                        try:
+                            await self.send(msg.serialize())
 
-                        logger.logger.log(
-                            logger.EVENT_MESSAGE_SENT,
-                            sender=self.agent.jid,
-                            receiver=msg.agent,
-                            content=msg.body
-                        )
-                    except Exception as e:
-                        logger.logger.log(
-                            logger.EVENT_EXCEPTION,
-                            where=f'Agent {self.agent.id} SendMessages',
-                            type=str(type(e)),
-                            exception=str(e)
-                        )
+                            logger.logger.log(
+                                logger.EVENT_MESSAGE_SENT,
+                                sender=self.agent.jid,
+                                receiver=msg.agent,
+                                content=msg.body
+                            )
+                        except Exception as e:
+                            logger.logger.log(
+                                logger.EVENT_EXCEPTION,
+                                where=f'Agent {self.agent.id} SendMessages',
+                                type=str(type(e)),
+                                exception=str(e)
+                            )
 
-                if sess.ended:
-                    self.agent.remove_session(sess.session_id)
+                    if sess.ended:
+                        self.agent.remove_session(sess.session_id)
 
     class ReceiveMessage(spade.behaviour.CyclicBehaviour):
         """
@@ -71,7 +72,7 @@ class AgentBase(spade.agent.Agent):
             super(AgentBase.ReceiveMessage, self).__init__()
 
         async def run(self):
-            try:
+            with logger.ExceptionCatcher('ReceiveMessage'):
                 spade_msg = await self.receive(self.agent.TIME_QUANT)
 
                 if not spade_msg:
@@ -97,14 +98,6 @@ class AgentBase(spade.agent.Agent):
                     )
                 else:
                     self.agent.received_msg_without_session(msg)
-
-            except Exception as e:
-                logger.logger.log(
-                    logger.EVENT_EXCEPTION,
-                    where=f'Agent {self.agent.id} ReceiveMessage',
-                    type=str(type(e)),
-                    exception=str(e)
-                )
 
     def __init__(self, agent_id, connections, config):
         """
@@ -174,7 +167,6 @@ class AgentBase(spade.agent.Agent):
 
         self.running = True
 
-
     def create_session(self):
         """
         Creates a session with locally-unique id
@@ -222,7 +214,7 @@ class AgentBase(spade.agent.Agent):
                 type='Invalid offer object',
                 exc=str(offer)
             )
-        elif not offer.type == OfferType.INITAL_OFFER:
+        elif not offer.type == OfferType.INITIAL_OFFER:
             logger.logger.log(
                 logger.EVENT_EXCEPTION,
                 where='received_msg_without_session',
@@ -255,17 +247,18 @@ class AgentBase(spade.agent.Agent):
         """
         session = self.create_session()
 
-        def run():
-            offer = self.get_initial_sell_offer() if selling else self.get_initial_buy_offer()
-            partners = self.get_negotiation_partners(selling)
+        offer = self.get_initial_sell_offer() if selling else self.get_initial_buy_offer()
+        if offer:
+            def run():
+                partners = self.get_negotiation_partners(selling)
 
-            self.negotiate_server(session, offer, partners)
+                self.negotiate_server(session, offer, partners)
 
-            session.end()
+                session.end()
 
-        t = threading.Thread(target=run)
-        t.daemon = True
-        t.start()
+            t = threading.Thread(target=run)
+            t.daemon = True
+            t.start()
 
     def negotiate_server(self, session, initial_offer, partners):
         """
@@ -364,7 +357,7 @@ class AgentBase(spade.agent.Agent):
 
         timeout = self.get_timeout()
 
-        while partner_offer.type in (OfferType.INITAL_OFFER, OfferType.COUNTER_OFFER):
+        while partner_offer.type in (OfferType.INITIAL_OFFER, OfferType.COUNTER_OFFER):
             session.send(own_offer, partner, partner_session)
 
             partner_offer = None
