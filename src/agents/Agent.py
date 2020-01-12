@@ -331,6 +331,3 @@ class Agent(AgentBase):
             logger.EVENT_AGENT_BANKRUPTED,
             self.id
         )
-        pass
-        
-
