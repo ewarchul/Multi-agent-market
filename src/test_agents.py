@@ -308,8 +308,8 @@ def handler(event, **kwargs):
     print("hello")
 
 
-logger.logger.register_event_handler("EVENT_LOGGER_INITIALIZED", handler)
-logger.logger.register_event_handler("EVENT_AGENT_STATE_CHANGED", handler)
+logger.logger.register_event_handler(logger.EVENT_LOGGER_INITIALIZED, handler)
+logger.logger.register_event_handler(logger.EVENT_AGENT_STATE_CHANGED, handler)
 
 a1 = Agent(1, [2], config)
 a2 = Agent(2, [1], config)
