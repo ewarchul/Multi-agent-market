@@ -40,28 +40,29 @@ class AgentBase(spade.agent.Agent):
         async def run(self):
             await asyncio.sleep(self.agent.TIME_QUANT)
 
-            sessions = self.agent.get_sessions()
-            for sess in sessions:
-                for msg in sess.take_all_out_messages():
-                    try:
-                        await self.send(msg.serialize())
+            with logger.ExceptionCatcher('SendMessages'):
+                sessions = self.agent.get_sessions()
+                for sess in sessions:
+                    for msg in sess.take_all_out_messages():
+                        try:
+                            await self.send(msg.serialize())
 
-                        logger.logger.log(
-                            logger.EVENT_MESSAGE_SENT,
-                            sender=self.agent.jid,
-                            receiver=msg.agent,
-                            content=msg.body
-                        )
-                    except Exception as e:
-                        logger.logger.log(
-                            logger.EVENT_EXCEPTION,
-                            where=f'Agent {self.agent.id} SendMessages',
-                            type=str(type(e)),
-                            exception=str(e)
-                        )
+                            logger.logger.log(
+                                logger.EVENT_MESSAGE_SENT,
+                                sender=self.agent.jid,
+                                receiver=msg.agent,
+                                content=msg.body
+                            )
+                        except Exception as e:
+                            logger.logger.log(
+                                logger.EVENT_EXCEPTION,
+                                where=f'Agent {self.agent.id} SendMessages',
+                                type=str(type(e)),
+                                exception=str(e)
+                            )
 
-                if sess.ended:
-                    self.agent.remove_session(sess.session_id)
+                    if sess.ended:
+                        self.agent.remove_session(sess.session_id)
 
     class ReceiveMessage(spade.behaviour.CyclicBehaviour):
         """
@@ -71,7 +72,7 @@ class AgentBase(spade.agent.Agent):
             super(AgentBase.ReceiveMessage, self).__init__()
 
         async def run(self):
-            try:
+            with logger.ExceptionCatcher('ReceiveMessage'):
                 spade_msg = await self.receive(self.agent.TIME_QUANT)
 
                 if not spade_msg:
@@ -97,14 +98,6 @@ class AgentBase(spade.agent.Agent):
                     )
                 else:
                     self.agent.received_msg_without_session(msg)
-
-            except Exception as e:
-                logger.logger.log(
-                    logger.EVENT_EXCEPTION,
-                    where=f'Agent {self.agent.id} ReceiveMessage',
-                    type=str(type(e)),
-                    exception=str(e)
-                )
 
     def __init__(self, agent_id, connections, config):
         """
@@ -173,7 +166,6 @@ class AgentBase(spade.agent.Agent):
             )
 
         self.running = True
-
 
     def create_session(self):
         """
@@ -304,7 +296,7 @@ class AgentBase(spade.agent.Agent):
             partners_sessions = {a: sess for a, sess in zip(senders, sessions)}
             sender_offers = {s: o for s, o in zip(senders, offers) if s in partners}
 
-            accept_offers = self.check_accepted(sender_offers)
+            accept_offers = self.check_accepted(offer, sender_offers)
 
             if accept_offers:
                 confirmation_offers = self.finalize_negotiations(
@@ -315,7 +307,7 @@ class AgentBase(spade.agent.Agent):
             offer = self.get_counter_offer(offer, sender_offers)
             offer.other_offers = list(sender_offers.values())
 
-        self.accepted_offers(offer, confirmation_offers, "SERVER")
+        self.accepted_offers(offer, confirmation_offers)
 
         if not offer:
             logger.logger.log(
@@ -394,7 +386,7 @@ class AgentBase(spade.agent.Agent):
                 own_offer = make_confirmation(partner_offer)
                 session.send(own_offer, partner, partner_session)
 
-        self.accepted_offers(own_offer, {partner: partner_offer} if partner_offer else {}, "CLIENT")
+        self.accepted_offers(own_offer, {partner: partner_offer} if partner_offer else {})
 
     def get_negotiation_partners(self, selling):
         """

@@ -21,8 +21,10 @@ class Agent(AgentBase):
 
         async def run(self):
             await asyncio.sleep(self.agent.LOGIC_TIME_QUANT)
-            self.agent.run_transaction_in_server_mode(selling=False)
-            self.agent.run_transaction_in_server_mode(selling=True)
+
+            with logger.ExceptionCatcher('CreateOffers'):
+                self.agent.run_transaction_in_server_mode(selling=False)
+                self.agent.run_transaction_in_server_mode(selling=True)
 
     class GenerateProduct(spade.behaviour.CyclicBehaviour):
         """
@@ -34,11 +36,13 @@ class Agent(AgentBase):
 
         async def run(self):
             await asyncio.sleep(self.agent.LOGIC_TIME_QUANT)
-            current_time = datetime.datetime.now()
 
-            dt = self.last_generate_time - current_time
-            self.agent.produce(current_time, dt)
-            self.last_generate_time = current_time
+            with logger.ExceptionCatcher('GenerateProduct'):
+                current_time = datetime.datetime.now()
+
+                dt = self.last_generate_time - current_time
+                self.agent.produce(current_time, dt)
+                self.last_generate_time = current_time
 
     class DropProduct(spade.behaviour.CyclicBehaviour):
         """
@@ -49,7 +53,9 @@ class Agent(AgentBase):
 
         async def run(self):
             await asyncio.sleep(self.agent.LOGIC_TIME_QUANT)
-            self.agent.drop()
+
+            with logger.ExceptionCatcher('DropProduct'):
+                self.agent.drop()
 
     class ManageNeeds(spade.behaviour.CyclicBehaviour):
         """
@@ -60,14 +66,16 @@ class Agent(AgentBase):
 
         async def run(self):
             await asyncio.sleep(self.agent.LOGIC_TIME_QUANT)
-            current_time = datetime.datetime.now()
-            to_satisfy = datetime.timedelta(seconds=self.agent.config.needs_satisfaction_timeout)
 
-            self.agent.create_needs(current_time, to_satisfy)
+            with logger.ExceptionCatcher('ManageNeeds'):
+                current_time = datetime.datetime.now()
+                to_satisfy = datetime.timedelta(seconds=self.agent.config.needs_satisfaction_timeout)
 
-            await asyncio.sleep(to_satisfy.total_seconds())
+                self.agent.create_needs(current_time, to_satisfy)
 
-            self.agent.check_satisfaction()
+                await asyncio.sleep(to_satisfy.total_seconds())
+
+                self.agent.check_satisfaction()
 
     class GenerateIncome(spade.behaviour.CyclicBehaviour):
         """
@@ -78,10 +86,12 @@ class Agent(AgentBase):
 
         async def run(self):
             await asyncio.sleep(self.agent.config.income_time)
-            current_time = datetime.datetime.now()
-            dt = datetime.timedelta(seconds=self.agent.config.income_time)
 
-            self.agent.income(current_time, dt)
+            with logger.ExceptionCatcher('GenerateIncome'):
+                current_time = datetime.datetime.now()
+                dt = datetime.timedelta(seconds=self.agent.config.income_time)
+
+                self.agent.income(current_time, dt)
 
     async def setup(self):
         await super(Agent, self).setup()

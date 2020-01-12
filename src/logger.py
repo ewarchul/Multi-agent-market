@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
-import os, sys
+import sys
+from contextlib import ContextDecorator
 
 
 EVENT_LOGGER_INITIALIZED = 'Logger initialized'
@@ -151,3 +152,21 @@ class Logger(object):
         for stream in self.streams:
             stream.write(f'{line}{self.LINE_SEPARATOR}')
             stream.flush()
+
+
+class ExceptionCatcher(ContextDecorator):
+    def __init__(self, where):
+        self.where = where
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            logger.log(
+                EVENT_EXCEPTION,
+                where=self.where,
+                type=exc_type,
+                exception=exc_val
+            )
+        return True  # suppress exception
