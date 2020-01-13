@@ -1,8 +1,6 @@
 class Policy(object):
     """
     Policy base class
-
-    TODO method arguments and return types specification
     """
     def __init__(self, agent, *args):
         """

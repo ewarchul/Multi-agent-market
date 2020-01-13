@@ -4,9 +4,7 @@ from agents.Offer import Offer, OfferType
 
 class LazyPolicy(Policy):
     """
-    Policy base class
-
-    TODO method arguments and return types specification
+    A policy to do nothing
     """
     def __init__(self, agent, *args):
         """

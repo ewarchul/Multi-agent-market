@@ -43,7 +43,8 @@ class AgentBase(spade.agent.Agent):
             with logger.ExceptionCatcher('SendMessages'):
                 sessions = self.agent.get_sessions()
                 for sess in sessions:
-                    for msg in sess.take_all_out_messages():
+                    messages = list(sess.take_all_out_messages())
+                    for msg in messages:
                         try:
                             await self.send(msg.serialize())
 
@@ -257,7 +258,7 @@ class AgentBase(spade.agent.Agent):
                 session.end()
 
             t = threading.Thread(target=run)
-            t.daemon = True
+            # t.daemon = True
             t.start()
 
     def negotiate_server(self, session, initial_offer, partners):
@@ -287,10 +288,12 @@ class AgentBase(spade.agent.Agent):
                 break
 
             # remove breakdown offers
-            senders, offers, sessions = zip(*[(a, o, s) for a, o, s in zip(senders, offers, sessions) if o])
+            aos = list(zip(*[(a, o, s) for a, o, s in zip(senders, offers, sessions) if o]))
 
-            if not offers:
+            if not aos:
                 break
+
+            senders, offers, sessions = aos
 
             partners.intersection_update(senders)
             partners_sessions = {a: sess for a, sess in zip(senders, sessions)}
@@ -305,7 +308,7 @@ class AgentBase(spade.agent.Agent):
                 break
 
             offer = self.get_counter_offer(offer, sender_offers)
-            offer.other_offers = list(sender_offers.values())
+            self.set_previous_offers(offer, sender_offers)
 
         self.accepted_offers(offer, confirmation_offers)
 
@@ -319,6 +322,11 @@ class AgentBase(spade.agent.Agent):
                 logger.EVENT_ALL_CLIENTS_NEGOTIATION_BREAKDOWN,
                 id=self.id
             )
+
+    def set_previous_offers(self, offer, previous_dict):
+        offer.other_offers = list(previous_dict.values())
+        for o in offer.other_offers:
+            o.other_offers = None
 
     def finalize_negotiations(self, accept_offers, reject_offers, session, partner_sessions, timeout):
         """
@@ -385,6 +393,9 @@ class AgentBase(spade.agent.Agent):
             if partner_offer.type == OfferType.ACCEPTING_OFFER:
                 own_offer = make_confirmation(partner_offer)
                 session.send(own_offer, partner, partner_session)
+
+            own_offer = self.get_counter_offer(own_offer, {partner: partner_offer})
+            self.set_previous_offers(own_offer, {partner: partner_offer})
 
         self.accepted_offers(own_offer, {partner: partner_offer} if partner_offer else {})
 
