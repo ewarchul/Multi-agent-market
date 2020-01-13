@@ -157,6 +157,13 @@ class Agent(AgentBase):
             offer = self.policy.initial_buy_offer()
             if offer:
                 self.modify_money_in_use(offer.money)
+                logger.logger.log(
+                    logger.EVENT_AGENT_INITIAL_OFFER,
+                    id=self.id,
+                    type='buy',
+                    resource=offer.resource,
+                    money=offer.money
+                )
 
             return offer
 
@@ -170,6 +177,13 @@ class Agent(AgentBase):
             offer = self.policy.initial_sell_offer()
             if offer:
                 self.modify_resource_in_use(offer.resource)
+                logger.logger.log(
+                    logger.EVENT_AGENT_INITIAL_OFFER,
+                    id=self.id,
+                    type='sell',
+                    resource=offer.resource,
+                    money=offer.money
+                )
 
             return offer
 
@@ -194,6 +208,17 @@ class Agent(AgentBase):
                 self.modify_resource_in_use(new_offer.resource - (offer.resource if offer else 0))
             else:
                 self.modify_money_in_use(new_offer.money - (offer.money if offer else 0))
+
+            if new_offer:
+                logger.logger.log(
+                    logger.EVENT_AGENT_OFFER_CHANGED,
+                    id=self.id,
+                    type='sell' if is_sell_offer else 'buy',
+                    prev_resource=offer.resource if offer else 0,
+                    prev_money=offer.money if offer else 0,
+                    resource=new_offer.resource,
+                    money=new_offer.money
+                )
 
             return new_offer
 
@@ -254,6 +279,21 @@ class Agent(AgentBase):
             if sender_offers:
                 self.policy.register_successful(offer)
                 self.modify_state(resource_change, money_change, 'Offers accepted')
+                logger.logger.log(
+                    logger.EVENT_AGENT_OFFER_ACCEPTED,
+                    id=self.id,
+                    type='sell' if offer.is_sell_offer else 'buy',
+                    resource=abs(resource_change),
+                    money=abs(money_change)
+                )
+            else:
+                logger.logger.log(
+                    logger.EVENT_AGENT_OFFER_REJECTED,
+                    id=self.id,
+                    type='sell' if offer.is_sell_offer else 'buy',
+                    resource=offer.resource if offer else 0,
+                    money=offer.money if offer else 0
+                )
 
     def modify_resource_in_use(self, change):
         self.resource_in_use += change
