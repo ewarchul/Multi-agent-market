@@ -1,12 +1,14 @@
 from agents.Agent import Agent
 from config import AgentConfig, const, random_uniform
 from policies import LazyPolicy, SimplePolicy
+from run import disable_spade_warnings
 
 import logger
 
 import time
 
 
+disable_spade_warnings()
 logger.initialize_default_logger(None)
 
 conf1 = AgentConfig()
