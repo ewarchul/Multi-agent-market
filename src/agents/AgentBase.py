@@ -394,6 +394,9 @@ class AgentBase(spade.agent.Agent):
                 own_offer = make_confirmation(partner_offer)
                 session.send(own_offer, partner, partner_session)
 
+            if not partner_offer:
+                break
+
             own_offer = self.get_counter_offer(own_offer, {partner: partner_offer})
             self.set_previous_offers(own_offer, {partner: partner_offer})
 
