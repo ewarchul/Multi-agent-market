@@ -12,6 +12,7 @@ EVENT_AGENT_RESTARTED = 'Agent restarted'
 EVENT_AGENT_INITIAL_OFFER = 'Initial offer'
 EVENT_AGENT_OFFER_CHANGED = 'Offer changed'
 EVENT_AGENT_OFFER_ACCEPTED = 'Offer accepted'
+EVENT_AGENT_OFFER_REJECTED = 'Offer rejected'
 
 EVENT_AGENT_STATE_CHANGED = 'Agent state changed'
 EVENT_AGENT_BANKRUPTED = 'Agent bankrupted'
@@ -37,6 +38,7 @@ EVENTS_ALL = {
     EVENT_AGENT_INITIAL_OFFER: ('id', 'type', 'resource', 'money'),  # type as 'buy' or 'sell'
     EVENT_AGENT_OFFER_CHANGED: ('id', 'type', 'prev_resource', 'prev_money', 'resource', 'money'),
     EVENT_AGENT_OFFER_ACCEPTED: ('id', 'type', 'resource', 'money'),
+    EVENT_AGENT_OFFER_REJECTED: ('id', 'type', 'resource', 'money'),
 
     EVENT_AGENT_STATE_CHANGED: ('id', 'reason', 'old_resource', 'resource', 'old_money', 'money'),
     EVENT_AGENT_BANKRUPTED: ('id',),

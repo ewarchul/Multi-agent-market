@@ -2,10 +2,17 @@ from main_cli import main_loop
 from agentNet.agent_net import AgentNet
 from config.agent_config import load_agent_config
 from agents.Agent import Agent
+
+import logging
+
 import logger
 
 import argparse
 import os
+
+
+def disable_spade_warnings():
+    logging.getLogger('spade.Agent').setLevel(logging.ERROR)
 
 
 def create_agent(agent_id, connections, config_filename):
@@ -54,6 +61,8 @@ def run(config_filename, log_filename, log_to_stderr):
     log_file = open(log_filename, 'w') if log_filename else None
     logger.initialize_default_logger(log_file, use_stderr=log_to_stderr)
 
+    disable_spade_warnings()
+    
     network_config = AgentNet()
     network_config.load_network(config_filename)
 

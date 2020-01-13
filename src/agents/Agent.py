@@ -9,8 +9,9 @@ import spade
 
 
 class Agent(AgentBase):
-    LOGIC_TIME_QUANT = 10 * AgentBase.TIME_QUANT
-    TIMEOUT = LOGIC_TIME_QUANT
+    LOGIC_TIME_QUANT = 100 * AgentBase.TIME_QUANT
+    TIMEOUT = 10 * AgentBase.TIME_QUANT
+    ACCURACY = 5
 
     class CreateOffers(spade.behaviour.CyclicBehaviour):
         """
@@ -20,7 +21,7 @@ class Agent(AgentBase):
             super(Agent.CreateOffers, self).__init__()
 
         async def run(self):
-            await asyncio.sleep(self.agent.LOGIC_TIME_QUANT)
+            await asyncio.sleep(self.agent.TIME_QUANT)
 
             with logger.ExceptionCatcher('CreateOffers'):
                 self.agent.run_transaction_in_server_mode(selling=False)
@@ -62,6 +63,7 @@ class Agent(AgentBase):
         Behaviour for needs generation.
         """
         def __init__(self):
+            self.time_to_satisfy = None
             super(Agent.ManageNeeds, self).__init__()
 
         async def run(self):
@@ -70,8 +72,12 @@ class Agent(AgentBase):
             with logger.ExceptionCatcher('ManageNeeds'):
                 current_time = datetime.datetime.now()
                 to_satisfy = datetime.timedelta(seconds=self.agent.config.needs_satisfaction_timeout)
+                self.time_to_satisfy = current_time + to_satisfy
 
                 self.agent.create_needs(current_time, to_satisfy)
+
+                if self.agent.current_needs == 0:
+                    return
 
                 await asyncio.sleep(to_satisfy.total_seconds())
 
@@ -150,7 +156,14 @@ class Agent(AgentBase):
         with self.state_lock:
             offer = self.policy.initial_buy_offer()
             if offer:
-                self.money_in_use += offer.money
+                self.modify_money_in_use(offer.money)
+                logger.logger.log(
+                    logger.EVENT_AGENT_INITIAL_OFFER,
+                    id=self.id,
+                    type='buy',
+                    resource=offer.resource,
+                    money=offer.money
+                )
 
             return offer
 
@@ -161,9 +174,16 @@ class Agent(AgentBase):
         :return: Offer object with type = INITIAL_OFFER and is_sell_offer = True
         """
         with self.state_lock:
-            offer = self.policy.initial_buy_offer()
+            offer = self.policy.initial_sell_offer()
             if offer:
-                self.resource_in_use += offer.resource
+                self.modify_resource_in_use(offer.resource)
+                logger.logger.log(
+                    logger.EVENT_AGENT_INITIAL_OFFER,
+                    id=self.id,
+                    type='sell',
+                    resource=offer.resource,
+                    money=offer.money
+                )
 
             return offer
 
@@ -179,16 +199,28 @@ class Agent(AgentBase):
         :return: Offer object
         """
 
+        is_sell_offer = not next(iter(sender_offers.values())).is_sell_offer
         with self.state_lock:
-            offer = self.policy.sell_counter_offer(offer, sender_offers)\
-                if offer.is_sell_offer else self.policy.buy_counter_offer(offer, sender_offers)
+            new_offer = self.policy.sell_counter_offer(offer, sender_offers)\
+                if is_sell_offer else self.policy.buy_counter_offer(offer, sender_offers)
 
-            if offer.is_sell_offer:
-                self.resource_in_use += offer.resource - offer.resource
+            if new_offer.is_sell_offer:
+                self.modify_resource_in_use(new_offer.resource - (offer.resource if offer else 0))
             else:
-                self.money_in_use += offer.money - offer.money
+                self.modify_money_in_use(new_offer.money - (offer.money if offer else 0))
 
-            return offer
+            if new_offer:
+                logger.logger.log(
+                    logger.EVENT_AGENT_OFFER_CHANGED,
+                    id=self.id,
+                    type='sell' if is_sell_offer else 'buy',
+                    prev_resource=offer.resource if offer else 0,
+                    prev_money=offer.money if offer else 0,
+                    resource=new_offer.resource,
+                    money=new_offer.money
+                )
+
+            return new_offer
 
     def get_timeout(self):
         """
@@ -232,19 +264,44 @@ class Agent(AgentBase):
 
         with self.state_lock:
             if offer.is_sell_offer:
-                self.resource_in_use -= offer.resource
+                self.modify_resource_in_use(-offer.resource)
             else:
-                self.money_in_use -= offer.money
+                self.modify_money_in_use(-offer.money)
 
-            money_change = sum(o.money for o in sender_offers)
-            resource_change = sum(o.resource for o in sender_offers)
+            money_change = sum(o.money for o in sender_offers.values())
+            resource_change = sum(o.resource for o in sender_offers.values())
 
             if offer.is_sell_offer:
                 resource_change = -resource_change
             else:
                 money_change = -money_change
 
-            self.modify_state(resource_change, money_change, 'Offers accepted')
+            if sender_offers:
+                self.policy.register_successful(offer)
+                self.modify_state(resource_change, money_change, 'Offers accepted')
+                logger.logger.log(
+                    logger.EVENT_AGENT_OFFER_ACCEPTED,
+                    id=self.id,
+                    type='sell' if offer.is_sell_offer else 'buy',
+                    resource=abs(resource_change),
+                    money=abs(money_change)
+                )
+            else:
+                logger.logger.log(
+                    logger.EVENT_AGENT_OFFER_REJECTED,
+                    id=self.id,
+                    type='sell' if offer.is_sell_offer else 'buy',
+                    resource=offer.resource if offer else 0,
+                    money=offer.money if offer else 0
+                )
+
+    def modify_resource_in_use(self, change):
+        self.resource_in_use += change
+        self.resource_in_use = round(self.resource_in_use, self.ACCURACY)
+
+    def modify_money_in_use(self, change):
+        self.money_in_use += change
+        self.money_in_use = round(self.money_in_use, self.ACCURACY)
 
     def modify_state(self, resource_change, money_change, reason):
         old_resource = self.resource_total
@@ -256,15 +313,20 @@ class Agent(AgentBase):
                 self.current_needs = 0
             else:
                 self.current_needs -= resource_change
+                self.current_needs = round(self.current_needs, self.ACCURACY)
                 resource_change = 0
 
         self.resource_total += resource_change
         if self.resource_total > self.config.storage_limit:
             money_change -= (self.config.storage_limit - self.resource_total) * self.config.utilization_cost
+            self.resource_total = self.config.storage_limit
 
         self.money_total += money_change
         if self.money_total < 0:
             self.bankrupt()
+
+        self.resource_total = round(self.resource_total, self.ACCURACY)
+        self.money_total = round(self.money_total, self.ACCURACY)
 
         logger.logger.log(
             logger.EVENT_AGENT_STATE_CHANGED,
@@ -277,20 +339,22 @@ class Agent(AgentBase):
         )
 
     def create_needs(self, time, dt):
-        with self.state_lock:
-            needs = self.config.needs(time, dt)
+        needs = self.config.needs(time, dt)
+        needs = round(needs, self.ACCURACY)
+        if needs:
+            with self.state_lock:
+                free_resource = self.resource_total - self.resource_in_use
+                if free_resource > 0:
+                    if free_resource > needs:
+                        self.modify_state(-needs, 0, 'Needs created')
+                        self.resource_total -= needs
+                        needs = 0
+                    else:
+                        needs -= free_resource
+                        self.modify_state(-free_resource, 0, 'Needs created')
 
-            free_resource = self.resource_total - self.resource_in_use
-            if free_resource > 0:
-                if free_resource > needs:
-                    self.modify_state(-needs, 0, 'Needs created')
-                    self.resource_total -= needs
-                    needs = 0
-                else:
-                    needs -= free_resource
-                    self.modify_state(-free_resource, 0, 'Needs created')
-
-            self.current_needs += needs
+                self.current_needs += needs
+                self.current_needs = round(self.current_needs, self.ACCURACY)
 
     def produce(self, time, dt):
         with self.state_lock:
@@ -316,9 +380,10 @@ class Agent(AgentBase):
     def check_satisfaction(self):
         with self.state_lock:
             if self.current_needs > 0:
-                penalty = self.current_needs * self.config.needs_satisfaction_penalty
+                penalty = self.current_needs * self.config.needs_satisfaction_cost
 
                 self.modify_state(0, -penalty, 'Needs satisfaction penalty')
+                self.current_needs = 0
 
     def bankrupt(self):
         self.pause()
@@ -329,5 +394,12 @@ class Agent(AgentBase):
 
         logger.logger.log(
             logger.EVENT_AGENT_BANKRUPTED,
-            self.id
+            id=self.id
         )
+
+    def get_time_to_satisfy(self):
+        if not self.current_needs or not self.manage_needs_behaviour.time_to_satisfy:
+            return None
+        else:
+            return (self.manage_needs_behaviour.time_to_satisfy - datetime.datetime.now()).total_seconds()
+
