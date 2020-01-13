@@ -1,36 +1,20 @@
 from agents.Agent import Agent
 from config import AgentConfig, const, random_uniform
 from policies import LazyPolicy, SimplePolicy
-from run import disable_spade_warnings
+from run import disable_spade_warnings, visualisation
 from agentNet.agent_net import AgentNet
+
 
 import logger
 from pprint import pprint
 import time
 
-from agentPlot.display_graph import real_time_plot
-
 graph = AgentNet(init_num=2, net_type='complete')
 graph.create_network()
 
-global eventDict
-eventDict = {}
-
-
-def handler(event, **kwargs):
-    # print("hello")
-    if event in eventDict.keys():
-        eventDict[event].append(kwargs)
-    else:
-        eventDict[event] = []
-        eventDict[event].append(kwargs)
-
-
 disable_spade_warnings()
-logger.initialize_default_logger(None)
-
-logger.logger.register_event_handler(logger.EVENT_AGENT_STATE_CHANGED, handler)
-logger.logger.register_event_handler(logger.EVENT_MESSAGE_SENT, handler)
+f = open('log2.csv', 'w+')
+logger.initialize_default_logger(f)
 
 conf1 = AgentConfig()
 conf2 = AgentConfig()
@@ -55,8 +39,7 @@ if __name__ == '__main__':
 
     a1.start()
     a2.start()
-
+    visualisation(graph, logger)
     time.sleep(10)
 
-pprint(eventDict)
-real_time_plot(graph, eventDict)
+

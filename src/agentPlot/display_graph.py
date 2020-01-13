@@ -1,16 +1,15 @@
-from time import sleep
-import re
 import matplotlib.pyplot as plt
 import networkx as nx
-# import test_agents
+from agents.AgentBase import AgentBase
 import logger
 from agentNet.agent_net import AgentNet
 from agents.Offer import Offer, OfferType
 import numpy as np
 
+
 def get_id(jid=''):
     jid = str(jid)
-    return int(jid[len('agent_'):-(len('localhost') + 1)])
+    return int(jid[len('agent_'):-(len(AgentBase.HOST) + 1)])
 
 
 def normal_plot(graph, handlers, edge_colors, edge_labels, node_labels):
