@@ -251,6 +251,8 @@ class Agent(AgentBase):
             else:
                 money_change = -money_change
 
+            self.policy.register_successful(offer)
+
             if sender_offers:
                 self.modify_state(resource_change, money_change, 'Offers accepted')
 

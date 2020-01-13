@@ -15,7 +15,7 @@ conf2 = AgentConfig()
 conf1.initial_resource = 100
 conf1.storage_limit = 100
 conf1._policy_builder = SimplePolicy
-conf1._policy_builder_args = [0.1, 0.01, 0.01]
+conf1._policy_builder_args = [0.1, 2, 2, 0.01, 0.01]
 
 conf2.initial_money = 10
 conf2.needs_satisfaction_timeout = 5
@@ -23,7 +23,7 @@ conf2._needs = random_uniform
 conf2._needs_args = [3, 4]
 conf2.needs_satisfaction_cost = 0.5
 conf2._policy_builder = SimplePolicy
-conf2._policy_builder_args = [0.1, 0.01, 0.01]
+conf2._policy_builder_args = [0.1, 2, 2, 0.01, 0.01]
 
 
 if __name__ == '__main__':

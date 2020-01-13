@@ -12,7 +12,13 @@ class SimplePolicy(Policy):
     MIN_PRICE = 0.001
     MIN_RESOURCE = 0.001
 
-    def __init__(self, agent, minimal_price_change=0.1, buy_if_has_money_prob=0, sell_if_has_resource_prob=0, *args):
+    def __init__(self, agent,
+                 minimal_price_change=0.1,
+                 market_price_increase_factor=2,
+                 market_price_decrease_factor=2,
+                 buy_if_has_money_prob=0,
+                 sell_if_has_resource_prob=0,
+                 *args):
         """
         Creates decision policy for given agent
 
@@ -24,8 +30,13 @@ class SimplePolicy(Policy):
         """
         self.ACCURACY = agent.ACCURACY
         self.minimal_price_change = minimal_price_change
+        self.market_price_increase_factor = market_price_increase_factor
+        self.market_price_decrease_factor = market_price_decrease_factor
         self.buy_if_has_money_prob = buy_if_has_money_prob
         self.sell_if_has_money_prob = sell_if_has_resource_prob
+
+        self.market_price = None
+
         super(SimplePolicy, self).__init__(agent, *args)
 
     def produce(self, limit):
@@ -58,17 +69,18 @@ class SimplePolicy(Policy):
                     OfferType.INITIAL_OFFER,
                     is_sell_offer=False,
                     resource=self.agent.current_needs,
-                    money=self.MIN_PRICE
+                    money=round(self.get_base_buy_price() * self.agent.current_needs, self.ACCURACY)
                 )
             elif self.buy_if_has_money_prob and self.agent.resource_total < self.agent.config.storage_limit\
                     and random.random() < self.buy_if_has_money_prob:
+                resource = self.random(
+                    self.MIN_RESOURCE,
+                    self.agent.config.storage_limit - self.agent.resource_total)
                 return Offer(
                     OfferType.INITIAL_OFFER,
                     is_sell_offer=False,
-                    resource=self.random(
-                        self.MIN_RESOURCE,
-                        self.agent.config.storage_limit - self.agent.resource_total),
-                    money=self.MIN_PRICE
+                    resource=resource,
+                    money=round(self.get_base_buy_price() * resource, self.ACCURACY)
                 )
         else:
             return None
@@ -79,13 +91,12 @@ class SimplePolicy(Policy):
         """
         if self.agent.resource_total and not self.agent.resource_in_use and not self.agent.money_in_use\
                 and random.random() < self.sell_if_has_money_prob:
+            resource = self.random(self.MIN_RESOURCE, self.agent.resource_total)
             return Offer(
                 OfferType.INITIAL_OFFER,
                 is_sell_offer=True,
-                resource=self.random(
-                    self.MIN_RESOURCE,
-                    self.agent.resource_total),
-                money=self.MAX_PRICE
+                resource=resource,
+                money=round(self.get_base_sell_price() * resource, self.ACCURACY)
             )
 
     def buy_counter_offer(self, own_offer, other_offers):
@@ -104,7 +115,9 @@ class SimplePolicy(Policy):
             if other_offers else self.resource_increase_limit()
 
         upper_price_bound = min(o.money / o.resource for o in other_offers)
-        lower_price_bound = max(o.money / o.resource for o in prev_offers) if prev_offers else self.MIN_PRICE
+        lower_price_bound = max(o.money / o.resource for o in prev_offers)\
+            if prev_offers else self.get_base_buy_price()
+
         if own_offer:
             lower_price_bound = max(
                 lower_price_bound,
@@ -155,7 +168,8 @@ class SimplePolicy(Policy):
             return Offer(OfferType.BREAKDOWN_OFFER, True, 0, 0)
 
         lower_price_bound = max(o.money / o.resource for o in other_offers)
-        upper_price_bound = min(o.money / o.resource for o in prev_offers) if prev_offers else self.MAX_PRICE
+        upper_price_bound = min(o.money / o.resource for o in prev_offers)\
+            if prev_offers else self.get_base_sell_price()
         if own_offer:
             upper_price_bound = min(
                 upper_price_bound,
@@ -177,9 +191,19 @@ class SimplePolicy(Policy):
             money=round(price * resource, self.ACCURACY),
             resource=resource)
 
+    def register_successful(self, offer):
+        if offer.resource:
+            self.market_price = offer.money / offer.resource
+
     #################################
     # below are some helper methods #
     #################################
+
+    def get_base_buy_price(self):
+        return self.market_price / self.market_price_decrease_factor if self.market_price else self.MIN_PRICE
+
+    def get_base_sell_price(self):
+        return self.market_price * self.market_price_increase_factor if self.market_price else self.MAX_PRICE
 
     def resource_increase_limit(self):
         limit = self.agent.config.storage_limit - self.agent.resource_total + self.agent.current_needs

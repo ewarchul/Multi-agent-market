@@ -54,3 +54,6 @@ class LazyPolicy(Policy):
         :return: a counter or breakdown offer
         """
         return Offer(OfferType.BREAKDOWN_OFFER, False, 0, 0)
+
+    def register_successful(self, offer):
+        pass

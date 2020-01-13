@@ -50,3 +50,6 @@ class Policy(object):
         :return: a counter or breakdown offer
         """
         raise NotImplementedError
+
+    def register_successful(self, offer):
+        raise NotImplementedError
