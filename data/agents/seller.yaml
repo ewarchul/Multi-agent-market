@@ -1,0 +1,12 @@
+initial-money: 50
+initial-resource: 10
+storage-limit: 100
+production-cost: 1
+production_limit:
+  module: config.functions
+  fun: const_per_second
+  args:
+    - 5
+policy_builder:
+  module: policies.SimplePolicy
+  fun: SimplePolicy

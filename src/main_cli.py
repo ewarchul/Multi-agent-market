@@ -1,6 +1,7 @@
 from spade import quit_spade
 
 import logger
+import aioconsole
 
 
 def shutdown():
@@ -46,10 +47,10 @@ def restore_agent(all_agents, agents):
         all_agents[agent_id].restore()
 
 
-def main_loop(agents):
+async def main_loop(agents):
     run = True
     while run:
-        command = input("waiting for command ...\n")
+        command = await aioconsole.ainput("waiting for command ...\n")
         command_list = command.split(" ")
         print(command_list)
         if command_list[0] == "kill":

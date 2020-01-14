@@ -25,7 +25,7 @@ def normal_plot(graph, handlers, edge_colors, edge_labels, node_labels):
     status = handlers.get(logger.EVENT_AGENT_STATE_CHANGED)
     if status is not None:
         s = status[-1]
-        node_labels[int(s.get('id'))-1] = "{}/{}".format(np.around(s.get('resource'), 2), np.around(s.get("money"), 2))
+        node_labels[int(s.get('id'))-1] = "({}){}/{}".format(s.get('id'), np.around(s.get('resource'), 2), np.around(s.get("money"), 2))
 
     if message is not None:
         s = message[-1]
@@ -85,7 +85,6 @@ def real_time_plot(graph, handlers):
                     msg = s.get('content')
                     edge_labels[edge] = "{}/{}".format(np.around(msg.money, 2), np.around(msg.resource, 2))
 
-
                     if msg.type == OfferType.INITIAL_OFFER:
                         edge_colors[num] = "blue"
                     elif msg.type == OfferType.COUNTER_OFFER:
@@ -102,10 +101,10 @@ def real_time_plot(graph, handlers):
     if status is not None:
         for s in status:
             agent_id = s.get('id')
-            node_labels[int(agent_id)-1] = "{}/{}".format(round(s.get('resource')), round(s.get("money")))
+            node_labels[int(agent_id)-1] = "({}){}/{}".format(s.get('id'), round(s.get('resource')), round(s.get("money")))
     while 1:
         normal_plot(graph, handlers, edge_colors, edge_labels, node_labels)
-        plt.pause(0.0001)
+        plt.pause(AgentBase.TIME_QUANT * 10)
         if not plt.fignum_exists(1):
             break
         plt.clf()

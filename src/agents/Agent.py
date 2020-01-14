@@ -41,7 +41,7 @@ class Agent(AgentBase):
             with logger.ExceptionCatcher('GenerateProduct'):
                 current_time = datetime.datetime.now()
 
-                dt = self.last_generate_time - current_time
+                dt = current_time - self.last_generate_time
                 self.agent.produce(current_time, dt)
                 self.last_generate_time = current_time
 
