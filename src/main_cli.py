@@ -63,7 +63,7 @@ def run_command(command, agents):
 
 def run_ui(agents):
     def runner():
-        tk = tkinter.Tk('Command runner')
+        tk = tkinter.Tk()
         l = tkinter.Label(tk, text='Enter command...')
         l.pack()
         e = tkinter.Entry(tk)
