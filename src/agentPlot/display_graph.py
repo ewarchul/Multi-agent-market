@@ -5,6 +5,7 @@ import logger
 from agentNet.agent_net import AgentNet
 from agents.Offer import Offer, OfferType
 import numpy as np
+import queue
 
 
 def get_id(jid=''):
@@ -24,29 +25,38 @@ def normal_plot(graph, handlers, edge_colors, edge_labels, node_labels):
     message = handlers.get(logger.EVENT_MESSAGE_SENT)
     status = handlers.get(logger.EVENT_AGENT_STATE_CHANGED)
     if status is not None:
-        s = status[-1]
-        node_labels[int(s.get('id'))-1] = "({}){}/{}".format(s.get('id'), np.around(s.get('resource'), 2), np.around(s.get("money"), 2))
+        print("----------------", status)
 
+        while not status.empty():
+            stats = status.get(False)
+            print("fffff", stats)
+            node_labels[int(stats.get('id'))] = "({}){}/{}".format(stats.get('id'), np.around(stats.get('resource'), 2),
+                                                                   np.around(stats.get("money"), 2))
+        print(node_labels)
     if message is not None:
-        s = message[-1]
+        print("hhhhhhhhhhhhhhhhhhhh")
 
-        for num, edge in enumerate(graph.network.edges):
-            if tuple(sorted((get_id(s.get('sender')) - 1, (get_id(s.get('receiver')) - 1)))) == edge:
-                msg = s.get('content')
-                edge_labels[edge] = "{}/{}".format(np.around(msg.money, 2), np.around(msg.resource, 2))
+        print("----------------", message)
 
-                if msg.type == OfferType.INITIAL_OFFER:
-                    edge_colors[num] = "blue"
-                elif msg.type == OfferType.COUNTER_OFFER:
-                    edge_colors[num] = "yellow"
-                elif msg.type == OfferType.ACCEPTING_OFFER:
-                    edge_colors[num] = "green"
-                elif msg.type == OfferType.BREAKDOWN_OFFER:
-                    edge_colors[num] = "red"
-                elif msg.type == OfferType.CONFIRMATION_OFFER:
-                    edge_colors[num] = "green"
-                else:
-                    edge_colors[num] = "black"
+        while not message.empty():
+            s = message.get(False)
+            for num, edge in enumerate(graph.network.edges):
+                if tuple(sorted((get_id(s.get('sender')), (get_id(s.get('receiver')))))) == edge:
+                    msg = s.get('content')
+                    edge_labels[edge] = "{}/{}".format(np.around(msg.money, 2), np.around(msg.resource, 2))
+
+                    if msg.type == OfferType.INITIAL_OFFER:
+                        edge_colors[num] = "blue"
+                    elif msg.type == OfferType.COUNTER_OFFER:
+                        edge_colors[num] = "yellow"
+                    elif msg.type == OfferType.ACCEPTING_OFFER:
+                        edge_colors[num] = "green"
+                    elif msg.type == OfferType.BREAKDOWN_OFFER:
+                        edge_colors[num] = "red"
+                    elif msg.type == OfferType.CONFIRMATION_OFFER:
+                        edge_colors[num] = "green"
+                    else:
+                        edge_colors[num] = "black"
 
     pos = nx.kamada_kawai_layout(graph.network)
 
@@ -65,13 +75,13 @@ def real_time_plot(graph, handlers):
     global edge_colors
     edge_colors = ["black" for i in range(len(graph.network.edges))]
     global edge_labels
-    edge_labels ={}
+    edge_labels = {}
     for edge in graph.network.edges:
         edge_labels[edge] = '-/-'
     global node_labels
     node_labels = {}
     for node in graph.network.nodes:
-        node_labels[node] = '-/-'
+        node_labels[node] = '({})-/-'.format(node + 1)
     plt.ion()
     plt.show()
 
@@ -79,10 +89,11 @@ def real_time_plot(graph, handlers):
     status = handlers.get(logger.EVENT_AGENT_STATE_CHANGED)
 
     if message is not None:
-        for s in message:
+        while not message.empty():
             for num, edge in enumerate(graph.network.edges):
-                if tuple(sorted((get_id(s.get('sender')) - 1, (get_id(s.get('receiver')) - 1)))) == edge:
-                    msg = s.get('content')
+                if tuple(
+                        sorted((get_id(message.get(False).get('sender')), (get_id(message.get(False).get('receiver')))))) == edge:
+                    msg = message.get(False).get('content')
                     edge_labels[edge] = "{}/{}".format(np.around(msg.money, 2), np.around(msg.resource, 2))
 
                     if msg.type == OfferType.INITIAL_OFFER:
@@ -99,9 +110,12 @@ def real_time_plot(graph, handlers):
                         edge_colors[num] = "black"
 
     if status is not None:
-        for s in status:
-            agent_id = s.get('id')
-            node_labels[int(agent_id)-1] = "({}){}/{}".format(s.get('id'), round(s.get('resource')), round(s.get("money")))
+        print(status)
+        while not status.empty():
+            agent_id = status.get_noblock().get('id')
+            node_labels[int(agent_id) - 1] = "({}){}/{}".format(status.get_noblock().get('id'),
+                                                                round(status.get_noblock().get('resource')),
+                                                                round(status.get_noblock().get("money")))
     while 1:
         normal_plot(graph, handlers, edge_colors, edge_labels, node_labels)
         plt.pause(AgentBase.TIME_QUANT * 10)
