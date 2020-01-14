@@ -1,4 +1,4 @@
-from main_cli import run_ui
+# from main_cli import main_loop
 from agentNet.agent_net import AgentNet
 from config.agent_config import load_agent_config
 from agents.Agent import Agent
@@ -11,6 +11,7 @@ import argparse
 import asyncio
 import os, sys, time
 import threading
+import queue
 
 
 def disable_spade_warnings():
@@ -48,10 +49,10 @@ def visualisation(graph, logger):
     def handler(event, **kwargs):
         # print("hello")
         if event in eventDict.keys():
-            eventDict[event].append(kwargs)
+            eventDict[event].put(kwargs)
         else:
-            eventDict[event] = []
-            eventDict[event].append(kwargs)
+            eventDict[event] = queue.Queue()
+            eventDict[event].put(kwargs)
     logger.logger.register_event_handler(logger.EVENT_AGENT_STATE_CHANGED, handler)
     logger.logger.register_event_handler(logger.EVENT_MESSAGE_SENT, handler)
 
@@ -59,7 +60,8 @@ def visualisation(graph, logger):
         with logger.ExceptionCatcher('Visualisation'):
             real_time_plot(graph, eventDict)
 
-    threading.Thread(target=run_real_time_plot, daemon=True).start()
+    thread = threading.Thread(target=run_real_time_plot)
+    thread.start()
     # real_time_plot(graph, eventDict)
 
 
@@ -91,7 +93,7 @@ def run(config_filename, log_filename, vis, stdstream):
     logger.initialize_default_logger(log_file, stdstream)
 
     disable_spade_warnings()
-    
+
     network_config = AgentNet()
     network_config.load_network(config_filename)
 
@@ -100,7 +102,7 @@ def run(config_filename, log_filename, vis, stdstream):
 
     agents = initialize(network_config, config_filename)
 
-    run_ui(agents)
+    # asyncio.get_event_loop().run_until_complete(main_loop(agents))
 
 
 if __name__ == "__main__":
