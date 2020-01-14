@@ -28,7 +28,7 @@ def normal_plot(graph, handlers, edge_colors, edge_labels, node_labels):
         print("----------------", status)
 
         while not status.empty():
-            stats = status.get()
+            stats = status.get(False)
             print("fffff", stats)
             node_labels[int(stats.get('id'))] = "({}){}/{}".format(stats.get('id'), np.around(stats.get('resource'), 2),
                                                                    np.around(stats.get("money"), 2))
@@ -39,7 +39,7 @@ def normal_plot(graph, handlers, edge_colors, edge_labels, node_labels):
         print("----------------", message)
 
         while not message.empty():
-            s = message.get()
+            s = message.get(False)
             for num, edge in enumerate(graph.network.edges):
                 if tuple(sorted((get_id(s.get('sender')), (get_id(s.get('receiver')))))) == edge:
                     msg = s.get('content')
@@ -92,8 +92,8 @@ def real_time_plot(graph, handlers):
         while not message.empty():
             for num, edge in enumerate(graph.network.edges):
                 if tuple(
-                        sorted((get_id(message.get().get('sender')), (get_id(message.get().get('receiver')))))) == edge:
-                    msg = message.get().get('content')
+                        sorted((get_id(message.get(False).get('sender')), (get_id(message.get(False).get('receiver')))))) == edge:
+                    msg = message.get(False).get('content')
                     edge_labels[edge] = "{}/{}".format(np.around(msg.money, 2), np.around(msg.resource, 2))
 
                     if msg.type == OfferType.INITIAL_OFFER:
@@ -112,10 +112,10 @@ def real_time_plot(graph, handlers):
     if status is not None:
         print(status)
         while not status.empty():
-            agent_id = status.get().get('id')
-            node_labels[int(agent_id) - 1] = "({}){}/{}".format(status.get().get('id'),
-                                                                round(status.get().get('resource')),
-                                                                round(status.get().get("money")))
+            agent_id = status.get_noblock().get('id')
+            node_labels[int(agent_id) - 1] = "({}){}/{}".format(status.get_noblock().get('id'),
+                                                                round(status.get_noblock().get('resource')),
+                                                                round(status.get_noblock().get("money")))
     while 1:
         normal_plot(graph, handlers, edge_colors, edge_labels, node_labels)
         plt.pause(AgentBase.TIME_QUANT * 10)
