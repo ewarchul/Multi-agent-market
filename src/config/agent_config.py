@@ -60,7 +60,6 @@ class AgentConfig(object):
         self._production_limit_args = DEFAULT_FUN_ARGS
         self._needs = default_needs
         self._needs_args = DEFAULT_FUN_ARGS
-        self.income_time = DEFAULT_NUMERICAL_PARAM
         self._income = default_income
         self._income_args = DEFAULT_FUN_ARGS
         self._policy_builder = Policy

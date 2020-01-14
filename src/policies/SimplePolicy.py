@@ -133,10 +133,10 @@ class SimplePolicy(Policy):
 
         price = self.random(lower_price_bound, upper_price_bound)
 
-        upper_resource_bound = min(upper_resource_bound, (
+        upper_resource_bound = max(min(upper_resource_bound, (
                 self.agent.money_total - self.agent.money_in_use
                 + (own_offer.money if own_offer else 0)
-        ) / price)
+        ) / price), 0)
 
         upper_resource_bound = round(upper_resource_bound, self.ACCURACY)
 
