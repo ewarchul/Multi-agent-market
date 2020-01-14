@@ -5,11 +5,11 @@ from agents.Agent import Agent
 from agentPlot.display_graph import real_time_plot
 
 import logging
-
 import logger
 
 import argparse
 import os, time
+import threading
 
 
 def disable_spade_warnings():
@@ -54,7 +54,9 @@ def visualisation(graph, logger):
     logger.logger.register_event_handler(logger.EVENT_AGENT_STATE_CHANGED, handler)
     logger.logger.register_event_handler(logger.EVENT_MESSAGE_SENT, handler)
     time.sleep(10)
-    real_time_plot(graph, eventDict)
+    thread = threading.Thread(target=real_time_plot, args=(graph, eventDict))
+    thread.start()
+    # real_time_plot(graph, eventDict)
 
 
 def initialize(network_config, network_config_filename):
