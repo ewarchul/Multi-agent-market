@@ -15,7 +15,7 @@ class AgentBase(spade.agent.Agent):
     """
     HOST = 'localhost'
     TIME_QUANT = 0.05
-    CLIENT_TIMEOUT_FACTOR = 0.5
+    CLIENT_TIMEOUT_FACTOR = 2
 
     def get_agent_jid(self, agent_id):
         """
