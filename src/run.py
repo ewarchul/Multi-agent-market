@@ -1,4 +1,4 @@
-# from main_cli import main_loop
+from main_cli import run_ui
 from agentNet.agent_net import AgentNet
 from config.agent_config import load_agent_config
 from agents.Agent import Agent
@@ -102,7 +102,7 @@ def run(config_filename, log_filename, vis, stdstream):
 
     agents = initialize(network_config, config_filename)
 
-    # asyncio.get_event_loop().run_until_complete(main_loop(agents))
+    run_ui(agents)
 
 
 if __name__ == "__main__":
