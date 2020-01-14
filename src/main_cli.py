@@ -1,7 +1,8 @@
 from spade import quit_spade
 
 import logger
-import aioconsole
+import threading
+import tkinter
 
 
 def shutdown():
@@ -47,22 +48,39 @@ def restore_agent(all_agents, agents):
         all_agents[agent_id].restore()
 
 
-async def main_loop(agents):
-    run = True
-    while run:
-        command = await aioconsole.ainput("waiting for command ...\n")
-        command_list = command.split(" ")
-        print(command_list)
-        if command_list[0] == "kill":
-            kill_agent(agents, command_list[1:])
-        elif command_list[0] == "shutdown":
-            run = shutdown()
-        elif command_list[0] == "restore":
-            restore_agent(agents, command_list[1:])
-        elif command_list[0] == "log":
-            show_log()
-        else:
-            pass
+def run_command(command, agents):
+    command_list = command.split(" ")
+    if command_list[0] == "kill":
+        kill_agent(agents, command_list[1:])
+    elif command_list[0] == "shutdown":
+        return False
+    elif command_list[0] == "restore":
+        restore_agent(agents, command_list[1:])
+    elif command_list[0] == "log":
+        show_log()
+    return True
 
 
+def run_ui(agents):
+    def runner():
+        tk = tkinter.Tk('Command runner')
+        l = tkinter.Label(tk, text='Enter command...')
+        l.pack()
+        e = tkinter.Entry(tk)
+        e.pack(fill="x")
 
+        tk.geometry("300x63")
+
+        def on_click():
+            if not run_command(e.get(), agents):
+                tk.destroy()
+            else:
+                e.delete(0, 'end')
+
+        b = tkinter.Button(tk, text='Run', command=on_click, default="active")
+        b.pack(fill="both")
+        tk.mainloop()
+
+        shutdown()
+
+    threading.Thread(target=runner, daemon=True).start()

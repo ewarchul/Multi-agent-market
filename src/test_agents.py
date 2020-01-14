@@ -4,12 +4,13 @@ from policies import LazyPolicy, SimplePolicy
 from run import disable_spade_warnings
 
 import logger
+import sys
 
 import time
 
 
 disable_spade_warnings()
-logger.initialize_default_logger(None)
+logger.initialize_default_logger(None, sys.stderr)
 
 conf1 = AgentConfig()
 conf2 = AgentConfig()
@@ -36,4 +37,3 @@ if __name__ == '__main__':
     a2.start()
 
     time.sleep(10)
-
