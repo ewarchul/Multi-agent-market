@@ -88,12 +88,20 @@ def real_time_plot(graph, handlers):
     plt.show()
 
     normal_plot(graph, handlers, edge_colors, edge_labels, node_labels)
-    while 1:
-        normal_plot(graph, handlers, edge_colors, edge_labels, node_labels)
-        plt.pause(AgentBase.TIME_QUANT * 2)
+
+    def vis_updater():
         if not plt.fignum_exists(1):
-            break
+            return False
+
         plt.clf()
+        normal_plot(graph, handlers, edge_colors, edge_labels, node_labels)
+
+        return True
+
+    def vis_closer():
+        plt.close(1)
+
+    return vis_updater, vis_closer
 
 
 if __name__ == "main":

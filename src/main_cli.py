@@ -1,7 +1,6 @@
 from spade import quit_spade
 
 import logger
-import threading
 import tkinter
 
 
@@ -61,26 +60,43 @@ def run_command(command, agents):
     return True
 
 
-def run_ui(agents):
-    def runner():
-        tk = tkinter.Tk()
-        l = tkinter.Label(tk, text='Enter command...')
-        l.pack()
-        e = tkinter.Entry(tk)
-        e.pack(fill="x")
+def run_ui(agents, vis_updater, vis_closer):
+    tk = tkinter.Tk()
+    l = tkinter.Label(tk, text='Enter command...')
+    l.pack()
+    e = tkinter.Entry(tk)
+    e.pack(fill="x")
 
-        tk.geometry("300x63")
+    tk.geometry("300x63")
 
-        def on_click():
-            if not run_command(e.get(), agents):
-                tk.destroy()
-            else:
-                e.delete(0, 'end')
+    def on_click():
+        if not run_command(e.get(), agents):
+            vis_closer()
+            tk.destroy()
+            print('Exit with command')
+        else:
+            e.delete(0, 'end')
 
-        b = tkinter.Button(tk, text='Run', command=on_click, default="active")
-        b.pack(fill="both")
-        tk.mainloop()
+    def update_vis():
+        if vis_updater():
+            tk.after(100, update_vis)
+        else:
+            vis_closer()
+            tk.destroy()
+            print('Exit because plot closed')
 
-        shutdown()
+    def on_win_close():
+        vis_closer()
+        tk.destroy()
 
-    threading.Thread(target=runner, daemon=True).start()
+    b = tkinter.Button(tk, text='Run', command=on_click, default="active")
+    b.pack(fill="both")
+
+    if vis_updater:
+        tk.after(100, update_vis)
+
+    tk.protocol("WM_DELETE_WINDOW", on_win_close)
+
+    tk.mainloop()
+
+    shutdown()

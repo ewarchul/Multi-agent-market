@@ -8,9 +8,7 @@ import logging
 import logger
 
 import argparse
-import asyncio
-import os, sys, time
-import threading
+import os, sys
 import queue
 
 
@@ -56,13 +54,13 @@ def visualisation(graph, logger):
     logger.logger.register_event_handler(logger.EVENT_AGENT_STATE_CHANGED, handler)
     logger.logger.register_event_handler(logger.EVENT_MESSAGE_SENT, handler)
 
+    vis_updater, vis_closer = real_time_plot(graph, eventDict)
+
     def run_real_time_plot():
         with logger.ExceptionCatcher('Visualisation'):
-            real_time_plot(graph, eventDict)
+            return vis_updater()
 
-    thread = threading.Thread(target=run_real_time_plot)
-    thread.start()
-    # real_time_plot(graph, eventDict)
+    return run_real_time_plot, vis_closer
 
 
 def initialize(network_config, network_config_filename):
@@ -97,12 +95,11 @@ def run(config_filename, log_filename, vis, stdstream):
     network_config = AgentNet()
     network_config.load_network(config_filename)
 
-    if vis:
-        visualisation(network_config, logger)
+    vis_updater, vis_closer = visualisation(network_config, logger) if vis else None
 
     agents = initialize(network_config, config_filename)
 
-    run_ui(agents)
+    run_ui(agents, vis_updater, vis_closer)
 
 
 if __name__ == "__main__":
