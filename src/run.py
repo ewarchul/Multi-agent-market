@@ -41,7 +41,6 @@ def visualisation(graph, logger):
     :param graph: agent_net graph
     :param logger: system logger
     """
-    global eventDict
     eventDict = {}
 
     def handler(event, **kwargs):

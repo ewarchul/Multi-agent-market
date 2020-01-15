@@ -10,7 +10,7 @@ import spade
 
 class Agent(AgentBase):
     LOGIC_TIME_QUANT = 100 * AgentBase.TIME_QUANT
-    TIMEOUT = 10 * AgentBase.TIME_QUANT
+    TIMEOUT = 20 * AgentBase.TIME_QUANT
     ACCURACY = 5
 
     class CreateOffers(spade.behaviour.CyclicBehaviour):
@@ -381,7 +381,6 @@ class Agent(AgentBase):
         with self.state_lock:
             if self.current_needs > 0:
                 penalty = self.current_needs * self.config.needs_satisfaction_cost
-
                 self.modify_state(0, -penalty, 'Needs satisfaction penalty')
                 self.current_needs = 0
 

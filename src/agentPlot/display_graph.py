@@ -74,13 +74,10 @@ def real_time_plot(graph, handlers):
     :param graph: agent_net graph
     :param handlers: dictionary containing logs from the system
     """
-    global edge_colors
-    edge_colors = ["black" for i in range(len(graph.network.edges))]
-    global edge_labels
+    edge_colors = ["black" for _ in range(len(graph.network.edges))]
     edge_labels = {}
     for edge in graph.network.edges:
         edge_labels[edge] = '-/-'
-    global node_labels
     node_labels = {}
     for node in graph.network.nodes:
         node_labels[node] = '({})-/-'.format(node + 1)
@@ -107,12 +104,9 @@ def real_time_plot(graph, handlers):
 if __name__ == "main":
     graph = AgentNet(init_num=2, net_type='complete')
     graph.create_network()
-    #
-    global edge_colors
+
     edge_colors = ["black" for i in range(len(graph.network.edges))]
-    global edge_labels
     edge_labels = {}
-    global node_labels
     node_labels = {}
     for edge in graph.network.edges:
         edge_labels[edge] = '0/0'
