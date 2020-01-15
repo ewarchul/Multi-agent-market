@@ -111,7 +111,7 @@ class SimplePolicy(Policy):
         prev_offers = [oo for o in other_offers.values() for oo in o.other_offers if oo.resource]
         other_offers = [o for o in other_offers.values() if o.resource]
 
-        upper_resource_bound = sum(o.resource for o in other_offers)\
+        upper_resource_bound = max(o.resource for o in other_offers)\
             if other_offers else self.resource_increase_limit()
 
         upper_price_bound = min(o.money / o.resource for o in other_offers)
@@ -159,7 +159,7 @@ class SimplePolicy(Policy):
         other_offers = [o for o in other_offers.values() if o.resource]
 
         upper_resource_bound = min(
-            sum(o.resource for o in other_offers),
+            max(o.resource for o in other_offers),
             self.agent.resource_total - self.agent.resource_in_use + (own_offer.resource if own_offer else 0)
         )
         upper_resource_bound = round(upper_resource_bound, self.ACCURACY)
