@@ -2,13 +2,14 @@ from main_cli import main_loop
 from agentNet.agent_net import AgentNet
 from config.agent_config import load_agent_config
 from agents.Agent import Agent
+from agentPlot.display_graph import real_time_plot
 
 import logging
-
 import logger
 
 import argparse
-import os
+import os, time
+import threading
 
 
 def disable_spade_warnings():
@@ -34,6 +35,30 @@ def get_agent_config_filename(agent_config_filename, network_config_filename):
     return os.path.join(os.path.dirname(network_config_filename), agent_config_filename)
 
 
+def visualisation(graph, logger):
+    """
+    Starts visualisation of the simulation
+    :param graph: agent_net graph
+    :param logger: system logger
+    """
+    global eventDict
+    eventDict = {}
+
+    def handler(event, **kwargs):
+        # print("hello")
+        if event in eventDict.keys():
+            eventDict[event].append(kwargs)
+        else:
+            eventDict[event] = []
+            eventDict[event].append(kwargs)
+    logger.logger.register_event_handler(logger.EVENT_AGENT_STATE_CHANGED, handler)
+    logger.logger.register_event_handler(logger.EVENT_MESSAGE_SENT, handler)
+    time.sleep(10)
+    thread = threading.Thread(target=real_time_plot, args=(graph, eventDict))
+    thread.start()
+    # real_time_plot(graph, eventDict)
+
+
 def initialize(network_config, network_config_filename):
     """
     initializes system
@@ -57,7 +82,7 @@ def initialize(network_config, network_config_filename):
     return agents
 
 
-def run(config_filename, log_filename, log_to_stderr):
+def run(config_filename, log_filename, vis, log_to_stderr):
     log_file = open(log_filename, 'w') if log_filename else None
     logger.initialize_default_logger(log_file, use_stderr=log_to_stderr)
 
@@ -67,6 +92,8 @@ def run(config_filename, log_filename, log_to_stderr):
     network_config.load_network(config_filename)
 
     agents = initialize(network_config, config_filename)
+    if vis:
+        visualisation(network_config, logger)
     main_loop(agents)
 
 
@@ -76,7 +103,8 @@ if __name__ == "__main__":
     parser.add_argument('--config', action='store', type=str, required=True)
     parser.add_argument('--log', action='store', type=str, default=None, required=False)
     parser.add_argument('--log_stream', action='store', type=str, choices=('out', 'err'), default='err')
+    parser.add_argument('--vis', action='store', type=bool, default=False)
 
     args = parser.parse_args()
 
-    run(args.config, args.log, args.log_stream == 'err')
+    run(args.config, args.log, args.vis, args.log_stream == 'err')

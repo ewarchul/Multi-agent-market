@@ -1,15 +1,20 @@
 from agents.Agent import Agent
-from config import AgentConfig, const, random_uniform_per_second
+from config import AgentConfig, const, random_uniform
 from policies import LazyPolicy, SimplePolicy
-from run import disable_spade_warnings
+from run import disable_spade_warnings, visualisation
+from agentNet.agent_net import AgentNet
+
 
 import logger
-
+from pprint import pprint
 import time
 
+graph = AgentNet(init_num=2, net_type='complete')
+graph.create_network()
 
 disable_spade_warnings()
-logger.initialize_default_logger(None)
+f = open('log2.csv', 'w+')
+logger.initialize_default_logger(f)
 
 conf1 = AgentConfig()
 conf2 = AgentConfig()
@@ -21,7 +26,7 @@ conf1._policy_builder_args = [0.1, 2, 2, 0.01, 0.01]
 
 conf2.initial_money = 10
 conf2.needs_satisfaction_timeout = 5
-conf2._needs = random_uniform_per_second
+conf2._needs = random_uniform
 conf2._needs_args = [3, 4]
 conf2.needs_satisfaction_cost = 0.5
 conf2._policy_builder = SimplePolicy
@@ -34,6 +39,7 @@ if __name__ == '__main__':
 
     a1.start()
     a2.start()
-
+    visualisation(graph, logger)
     time.sleep(10)
+
 

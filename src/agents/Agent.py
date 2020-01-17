@@ -91,11 +91,11 @@ class Agent(AgentBase):
             super(Agent.GenerateIncome, self).__init__()
 
         async def run(self):
-            await asyncio.sleep(self.agent.config.income_time)
+            await asyncio.sleep(self.agent.LOGIC_TIME_QUANT)
 
             with logger.ExceptionCatcher('GenerateIncome'):
                 current_time = datetime.datetime.now()
-                dt = datetime.timedelta(seconds=self.agent.config.income_time)
+                dt = datetime.timedelta(seconds=self.agent.LOGIC_TIME_QUANT)
 
                 self.agent.income(current_time, dt)
 
