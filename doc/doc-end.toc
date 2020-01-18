@@ -1,0 +1,25 @@
+\contentsline {section}{\numberline {1}Wprowadzenie}{2}{section.1}
+\contentsline {section}{\numberline {2}Model zjawiska }{2}{section.2}
+\contentsline {subsection}{\numberline {2.1}Model rynku}{2}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Model Agenta}{2}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Zasoby}{2}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Polityka decyzyjna}{2}{subsubsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.3}Protok\IeC {\'o}\IeC {\l } komunikacyjny}{3}{subsubsection.2.2.3}
+\contentsline {section}{\numberline {3}Architektura systemu }{5}{section.3}
+\contentsline {subsection}{\numberline {3.1}Modu\IeC {\l } inicjuj\IeC {\k a}cy}{6}{subsection.3.1}
+\contentsline {subsubsection}{\numberline {3.1.1}Spos\IeC {\'o}b u\IeC {\.z}ycia}{6}{subsubsection.3.1.1}
+\contentsline {subsection}{\numberline {3.2}Modu\IeC {\l } sieci po\IeC {\l }\IeC {\k a}cze\IeC {\'n}}{6}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Modu\IeC {\l } konfiguracyjny}{8}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Modu\IeC {\l } Agenta}{9}{subsection.3.4}
+\contentsline {subsubsection}{\numberline {3.4.1}Logika agenta}{11}{subsubsection.3.4.1}
+\contentsline {subsubsection}{\numberline {3.4.2}Polityki decyzyjne}{11}{subsubsection.3.4.2}
+\contentsline {subsection}{\numberline {3.5}Modu\IeC {\l } archiwizuj\IeC {\k a}cy}{12}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.6}Modu\IeC {\l } wizualizuj\IeC {\k a}cy}{13}{subsection.3.6}
+\contentsline {subsection}{\numberline {3.7}Modu\IeC {\l } raportowo-analityczny}{14}{subsection.3.7}
+\contentsline {section}{\numberline {4}Eksperymenty }{15}{section.4}
+\contentsline {subsection}{\numberline {4.1}Generacja monopolu}{15}{subsection.4.1}
+\contentsline {subsubsection}{\numberline {4.1.1}Konfiguracja agent\IeC {\'o}w}{15}{subsubsection.4.1.1}
+\contentsline {subsubsection}{\numberline {4.1.2}Obserwacje i wnioski}{15}{subsubsection.4.1.2}
+\contentsline {subsection}{\numberline {4.2}Dzia\IeC {\l }anie sieci wielkoskalowej}{15}{subsection.4.2}
+\contentsline {subsubsection}{\numberline {4.2.1}Konfiguracja agent\IeC {\'o}w}{16}{subsubsection.4.2.1}
+\contentsline {subsubsection}{\numberline {4.2.2}Obserwacje i wnioski}{16}{subsubsection.4.2.2}

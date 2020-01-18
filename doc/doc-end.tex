@@ -2,6 +2,7 @@
 \usepackage{fancyhdr}
 \usepackage[utf8]{inputenc}
 \usepackage{amssymb}
+\usepackage{tabularx}
 \usepackage{lmodern}
 \usepackage{cite}
 \usepackage{listings}
@@ -10,7 +11,6 @@
 \usepackage{color}
 \usepackage{amsmath}
 \setcounter{tocdepth}{3}
-\usepackage{graphicx}
 \usepackage{polski}
 \usepackage{amssymb}
 \newcommand*{\QEDA}{\hfill\ensuremath{\blacksquare}}%
@@ -264,10 +264,16 @@ oczekiwania na odpowiedź \(\tau\). Jeśli odpowiedź kontrahenta w trakcie
 negocjacji przyjdzie po czasie \(\tau\), to agent inicjujący negocjacje
 zrywa ją.
 
+\newpage
+
 \section{Architektura systemu \label{sec2}}
 
 Rysunek (\ref{arch1}) przedstawia architekturę implementowanego systemu. W sekcji tej znajduje się 
-omówienie każdego modułu składowego.
+omówienie każdego modułu składowego systemu i przedstawienie wzajemnych relacji między nimi.
+Do części z nich podane są diagramy klas UML -- w niektórych przypadkach z niepełnym interfejsem,
+co wynika z dużej liczby metod oferowanych przez daną klasę. Ponadto w dostarczonym kodzie źródłowym 
+znajduje się dokumentacja każdej używanej funkcji lub metody klas wraz opisem parametrów wejściowych.
+Opis zawarty w tej sekcji abstrahuje od szczegółów implementacyjnych.
 
 \begin{figure}[H]
 	\centering
@@ -285,23 +291,258 @@ uruchomienie środowiska symulacji. Moduł ten:
 
 \item uruchamia moduł archiwizujący, w którym zapisywane są zdarzenia generowane przez agentów oraz stan systemu 
 \item wczytuje z plików konfiguracyjnych strukturę połączeń między agentami oraz ich parametry wewnętrzne 
-\item włącza interfejs graficzny   
+\item włącza interfejs graficzny pozwalający na komunikację z systemem za pomocą zbioru komend  
+\item włącza moduł wizualizaujący sieć połączeń oraz zdarzenia, która zachodzą w trakcie symulacji.
 
 \end{itemize}
 
-\subsubsection{Wiersz poleceń}
+
+\subsubsection{Sposób użycia}
+
+W celu aktywacji modułu inicjalizującego, a tym samym całego systemu symulacyjnego należy użyć poniższej komendy 
+\newline
+\texttt{python run.py [-h] --config CONFIG [--log LOG] [--log\_stream {out,err}] [--vis VIS]}
+\newline
+w której należy podać:
+
+\begin{itemize}
+	\item ścieżkę do pliku z konfiguracją agentów \texttt{CONFIG}
+	\item ścieżkę do pliku, w którym będzie zapisywane archiwum zdarzeń zaszłych w trakcie symulacji \texttt{LOG}
+	\item strumień na który moduł archiwizujący będzie wypisał zdarzenia zaszłe w trakcie symulacji  
+		\begin{itemize}
+			\item \texttt{err}
+			\item \texttt{out}
+		\end{itemize}
+	\item flagę aktywującą moduł wizualizacyjny \texttt{VIS}.
+\end{itemize}
 \subsection{Moduł sieci połączeń}
+Moduł ten odpowiada za stworzenie sieci połączeń między agentami. Na rysunku (\ref{uml-net}) zawarty jest diagram 
+klas UML przedstawiający metody dostarczane przez ten moduł.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./net-uml.png}
+	\caption{Diagram klas modułu sieci połączeń.}
+	\label{uml-net}
+\end{figure}
+
+Poza stworzeniem sieci połączeń moduł również ładuje polityki decyzyjne agentów oraz umożliwia zapis/odczyt sieci i jej parametrów
+do/z plików \texttt{YAML}.
+
+
+Moduł inicjujący odpowiedzialny jest również za aktywowanie interfejsu linii komend, w której użytkownik może komunikować się z systemem w trakcie trwania symulacji.
+Dostępne możliwe komendy są następujące:
+
+\begin{itemize}
+	\item wyłączenie agenta z symulacji komendą o składni \texttt{kill [agent id]}
+	\item ponowne włączenie agenta do symulacji komendą o składni \texttt{restore [agent id]}
+	\item wyłączenie symulacji komedną \texttt{shutdown}.
+\end{itemize}
+
+W celu wprowadzania komend dedykowane jest specjalne okno, które widnieje na rysunku (\ref{run-image}) prezentującym działanie systemu.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, height=0.5\textheight]{./run-image.png}
+	\caption{System wypisuje archiwum zdarzeń na strumień standardowego wyjścia oraz widoczne jest działanie modułu wizualizaującego. Okno przy lewym górnym rogu zapewnia \texttt{CLI}.}
+	\label{run-image}
+\end{figure}
+
+
 \subsection{Moduł konfiguracyjny}
+
+Moduł konfiguracyjny odpowiedzialny jest za ustawienie wszystkich wartości parametrów agenta, które zostały  
+opisane w sekcji (\ref{sec1}).
+Na rysunku (\ref{uml-config}) zawarty jest diagram 
+klas UML przedstawiający metody dostarczane przez ten moduł.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./config-uml.png}
+	\caption{Diagram klas modułu konfiguracyjnego.}
+	\label{uml-config}
+\end{figure}
+
+Metody:
+\begin{itemize}
+	\item \texttt{production\_limit()}
+	\item \texttt{needs()}
+	\item \texttt{income()}
+\end{itemize}
+
+zwracają na podstawie aktualnego czasu symulacji oraz pewnego kroku czasowego $dt$ skalarną wartość odpowiedzialną za -- kolejno -- limit produkcji, potrzeby konsumpcyjne agenta
+oraz przychód.
+
+Pozostałe metody odpowiadają za wywołanie konstruktura polityk decyzyjnych oraz operacje zapisu/odczytu parametrów konfiguracyjnych z plików \texttt{YAML}.
+
+
 \subsection{Moduł Agenta}
+
+Moduł ten jest najbardziej złożonym elmentem systemu i składa się z dwóch podmodułów, które zostaną krótko scharakteryzowane:
+
+\begin{itemize}
+	\item modułu logiki agenta
+	\item modułu polityk decyzyjnych agenta.
+\end{itemize}
+
+
+Na rysunku (\ref{uml-agent}) znajduje się diagram klas przedstawiający elementy składowe modułu agenta, tj.:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth, height=0.8\textheight]{./agent-uml.png}
+	\caption{Diagram klas modułu agenta.}
+	\label{uml-agent}
+\end{figure}
+
+\begin{itemize}
+	\item klasę \texttt{AgentBase} implementującą model agenta zgodny z (\ref{sec1}) oraz zachowania agenta
+		związane z generacją oraz wysyłaniem wiadomości
+	\item klasę \texttt{Agent}, tj. klasę dziedziczącą po \texttt{AgentBase}, w której zaimplementowana jest logika 
+		działania agenta
+	\item klasę \texttt{Offer}, która reprezentuje ofertę formułowaną i nadawaną przez agenta
+	\item klasę \texttt{Message}, która reprezentuje wiadomości wysyłane między agentami
+	\item klasę \texttt{Session}, która modeluje sesję utrzymywaną przez agenta w ramach jego działania na rynku. 
+\end{itemize}
+
 \subsubsection{Logika agenta}
+
+Logika agenta jest implementowana w klasie \texttt{Agent} i składają się na nią wszystkie możliwe akcje podejmowane przez agenta w trakcie trwania sesji. \\
+Zbiór akcji agenta składa się z następujących elementów:
+
+\begin{itemize}
+
+	\item utworzenie oferty (klasa \texttt{CreateOffers})
+	\item generacja produktu (klasa \texttt{GenerateProduct})
+	\item usunięcie produktu (klasa \texttt{DropProduct}) 
+	\item generacja potrzeb (klasa \texttt{ManageNeeds})
+	\item generacja przychodu (klasa \texttt{GenerateIncome})
+\end{itemize}
+
+Wszystkie zachowania są modelowane jako zachowania cykliczne (\textit{CyclicBehaviour}) w sensie definiowanym przez bibliotekę \texttt{spade}.
+
 \subsubsection{Polityki decyzyjne}
+
+Podmoduł polityk decyzyjnych jest odpowiedzialny za przebieg wykonania akcji definiowanych w ramach logiki agenta.
+
+Na rysunku (\ref{uml-policy}) zawarty jest diagram 
+klas UML przedstawiający metody dostarczane przez ten moduł.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth, height=0.3\textheight]{./policy.png}
+	\caption{Diagram polityk decyzyjnych.}
+	\label{uml-agent}
+\end{figure}
+
+Klasa \texttt{Policy} jest klasą abstrakcyjną po której dziedziczą klasy \texttt{LazyPolicy} oraz \texttt{SimplePolicy}.
+
+Użytkownik posiada dowolność w definiowaniu klas polityk agentów z dokładnością do zgodności typów zwracanych przez funkcje.
+
 \subsection{Moduł archiwizujący}
+
+Moduł ten pozwala na wypisywanie informacji o stanie systemu na standardowe wyjście.
+Na rysunku (\ref{uml-config}) zawarty jest diagram 
+klas UML przedstawiający metody dostarczane przez ten moduł.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./logger-uml.png}
+	\caption{Diagram klas modułu archiwizującego.}
+	\label{logger-agent}
+\end{figure}
+
+Umożliwia on także zapisywanie tych informacji do pliku. 
+Na podstawie danych z tego modułu tworzona jest wizualizacja symulacji oraz część analityczna.
+W tabeli (\ref{events-tab}) zawarte są wszystkie zdarzenia, które są przekazywane do modułu archwizującego. \\
+Zdarzenia zostały podzielone na domeny, których dotyczą, tj.:
+
+\begin{itemize}
+	\item domena \textbf{Logger} dotyczy zdarzeń związanych z modułem archiwizującym
+	\item domena \textbf{Agent} dotyczy zdarzeń związanych ze stanem agenta 
+	\item domena \textbf{Sesja} dotyczy zdarzeń związanych z sesją handlową prowadzoną przez agenta 
+	\item domena \textbf{System} dotyczy zdarzeń związanych z działaniem systemu 
+\end{itemize}
+
+\begin{table}[H]
+	\begin{tabularx}{1.2\textwidth}{|X|X|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Domena}} & \multicolumn{1}{c|}{\textbf{Zdarzenia}}                                                                                                                                                                                              \\ \hline
+Logger                                & \small\textit{EVENT\_LOGGER\_INITIALIZED}                                                                                                                                                                                                  \\ \hline
+Agent                                 & \small\textit{EVENT\_AGENT\_INITIAL\_OFFER, EVENT\_AGENT\_OFFER\_CHANGED, EVENT\_AGENT\_OFFER\_ACCEPTED, EVENT\_AGENT\_OFFER\_REJECTED, EVENT\_AGENT\_STATE\_CHANGED, EVENT\_AGENT\_BANKRUPTED} \\ \hline
+Sesja                                 & \small\textit{EVENT\_MESSAGE\_SENT, EVENT\_MESSAGE\_RECEIVED, EVENT\_SERVER\_NEGOTIATION\_BREAKDOWN, EVENT\_CLIENT\_NEGOTIATION\_BREAKDOWN, EVENT\_SERVER\_FAILED\_TO\_RESPOND}               \\ \hline
+System                                & \small\textit{EVENT\_SYSTEM\_INITIALIZED, EVENT\_SYSTEM\_CLOSE, EVENT\_EXCEPTION, EVENT\_CLI} \\ \hline
+	\end{tabularx}
+\caption{Tabela ze wszystkimi zdarzeniami, które odnotowuje moduł archiwizujący.}
+\label{events-tab}
+\end{table}
+
 \subsection{Moduł wizualizujący}
+
+Moduł ten pozwala na wyświetlanie symulacji w czasie rzeczywistym. \\
+
+W węzłach grafu sieci połączeń przechowwany jest obecny stan agenta w formacie \texttt{liczba produktu/liczba środków wymiany}. 
+
+Kolor krawędzi oznacza jaka akcja wykonywana jest w danym momencie przez agentów w ramach negocjacji handlowych: 
+
+\begin{itemize}
+    \item czarny -- bezczynny
+    \item niebieski -- wysłanie oferty 
+    \item żółty -- wysłanie kontroferty 
+    \item czerwony -- zerwanie negocjacji
+    \item zielony -- zaakceptowanie oferty 
+\end{itemize}
+
+Krawędzie opisane są liczbą produktu oraz środka wymiany, które są przedmiotem oferty w identycznym foramcie jak stan agenta w węźle. 
+
+Na rysunku (\ref{vis-image}) zaprezentowana jest przykładowa wizualizacja symulacji.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth, height=0.4\textheight]{./vis-image.png}
+	\caption{Wizualizacja symulacji złożonej z 9 agentów. Agent $(3)$ posiada 0 jednostek produktu oraz $1109.54$ jednostek środka wymiany.}
+	\label{vis-image}
+\end{figure}
 \subsection{Moduł raportowo-analityczny}
-\section{Symulacje \label{sec3}}
-\subsection{Todo}
-\subsection{Todo}
-\subsection{Todo}
-\subsection{Todo}
-\subsection{Todo}
+
+Moduł ten składa się z szeregu funkcji napisanych w języku \texttt{R}, które na podstawie archiwum utworzonego w trakcie po przeprowadzeniu symulacji, pozwalają na:
+
+\begin{itemize}
+	\item ekstrakcje ustandaryzowanych ramek danych
+	\item wizualizacji stanu agentów w czasie trwania symulacji
+	\item wizualizacji przebiegu średniej ceny produktu za przyjęty przez użytkownika okres
+	\item wizualizacji relacji popytu i podaży.
+\end{itemize}
+
+Przykładowy przebieg utworzony na podstawie archiwum symulacji znajduje się na rysunku (\ref{analytics-image}).
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./analytics-image.png}
+	\caption{Przebieg liczby posiadanych jednostek produktu oraz środków wymiany przez agenta.}
+	\label{analytics-image}
+\end{figure}
+
+\section{Eksperymenty \label{sec3}}
+
+W ramach zaprezentowania możliwości zaprojektowanego i zaimplementowanego systemu w ramach projektu przeprowadzono dwa eksperymenty:
+
+\begin{itemize}
+	\item generacja monopolu, tj. eksperyment mający na celu zbadanie wpływu kosztu produkcji na możliwość utworzenia się monopolu na rynku dóbr konsumpcyjnych	
+	\item działanie sieci wielkoskalowej, tj. eksperyment, w którym sprawdzano jak działa system w obliczu przeprowadzania symulacji dla wielu agentów oraz reakcje systemu na wyłączenie jednego z agentów.
+\end{itemize}
+
+\subsection{Generacja monopolu}
+todo: wstawić opis
+\subsubsection{Konfiguracja agentów}
+todo: wstawić opis konfiga
+\subsubsection{Obserwacje i wnioski}
+todo: wstawić poprawione wykresy
+\subsection{Działanie sieci wielkoskalowej}
+todo: wstawić opis
+\subsubsection{Konfiguracja agentów}
+todo: wstawic opis konfiga
+\subsubsection{Obserwacje i wnioski}
+todo: uzupełnić
+
 \end{document}
