@@ -508,9 +508,8 @@ Moduł ten składa się z szeregu funkcji napisanych w języku \texttt{R}, któr
 
 \begin{itemize}
 	\item ekstrakcje ustandaryzowanych ramek danych
-	\item wizualizacji stanu agentów w czasie trwania symulacji
-	\item wizualizacji przebiegu średniej ceny produktu za przyjęty przez użytkownika okres
-	\item wizualizacji relacji popytu i podaży.
+	\item wizualizacji stanu agentów w czasie trwania symulacji, tj. ich liczby jednostek produktu oraz środka wymiany
+	\item wizualizacji przebiegu ceny produktu w ramach ofert sprzedaży i kupna.
 \end{itemize}
 
 Przykładowy przebieg utworzony na podstawie archiwum symulacji znajduje się na rysunku (\ref{analytics-image}).
@@ -532,17 +531,45 @@ W ramach zaprezentowania możliwości zaprojektowanego i zaimplementowanego syst
 	\item działanie sieci wielkoskalowej, tj. eksperyment, w którym sprawdzano jak działa system w obliczu przeprowadzania symulacji dla wielu agentów oraz reakcje systemu na wyłączenie jednego z agentów.
 \end{itemize}
 
+
+Ze względu na konieczną wiedzę ekspercką zakresu funkcjonowania rynków dóbr konsumpcyjnych i zachowań realnych agentów w tym środowisku -- 
+poniższe eksperymenty mają jedynie charakter demonstracyjny.  
+
 \subsection{Generacja monopolu}
-todo: wstawić opis
-\subsubsection{Konfiguracja agentów}
-todo: wstawić opis konfiga
-\subsubsection{Obserwacje i wnioski}
-todo: wstawić poprawione wykresy
+
+W celu zbadania zjawiska generacji monopolu na rynku dóbr konsumpcyjnych wykorzystano konfigurację agentów, w której wyróżniono łącznie 4 agentów z czego dwóch sprzedających dobra oraz dwóch wyłącznie kupujących je. 
+Jeden z agentów sprzedających dobra (agent o numerze ID \texttt{0}) posiadał ponadto bliska zera koszt produkcji, co było -- uproszczonym -- warunkiem powstania monopolu. \\
+Sieć połączeń między agentami stanowiła graf pełny. Rysunek przedstawia (\ref{monopoly-resource}) przedstawia stan posiadania jednostek produktów, które przypadały na agenta. Na jego podstawie można zawaużyć, że negocjaje handlowe przebiegały głównie między agentem od numerze ID równym \texttt{0} oraz agentem o numerze ID równym \texttt{3}. Brak chęci udziału uczestniczenia w sesji handlowej pozostałych agentów wynikał z ustawienia parametrów ich polityk decyzyjnych oraz parametrów początkowych przy czym brak zaznaczonego przebiegu dla agentów o ID \texttt{1} oraz \texttt{2} oznacza samoistne wyłączenie się z sesji.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./monopoly-resource.png}
+	\caption{Przebieg liczby posiadanych jednostek produktu przez agentów. Brak zaznaczonego przebiegu dla agentów o ID \texttt{1} oraz \texttt{2} oznacza samoistne wyłączenie się z sesji.}
+	\label{monopoly-resource}
+\end{figure}
+
+Dominująca pozycja na rynku podmiotu o ID równym \texttt{0} ukazała się również w fakcie posiadanych przez niego jednostek środka wymiany, co obrazuje rysunek (\ref{monopoly-money})
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./monopoly-money.png}
+	\caption{Przebieg liczby posiadanych środków wymiany przez agentów}
+	\label{monopoly-money}
+\end{figure}
+
 \subsection{Działanie sieci wielkoskalowej}
-todo: wstawić opis
-\subsubsection{Konfiguracja agentów}
-todo: wstawic opis konfiga
-\subsubsection{Obserwacje i wnioski}
-todo: uzupełnić
+
+W ramach eksperymentów na systemie sprawdzono również w jaki sposób działa on, gdy liczba agentów jest duża -- w przypadku przyjętej konfiguracji było to dziewięciu agentów.
+Sieć połączeń między nimi jest tożsama z siecią połączeń przedstawioną na rysunku (\ref{vis-image}).\\
+Rysunek (\ref{big-net-money}) przedstawia zmianę cen produktu w ramach ofert sprzedaży oraz kupna. Ze względu na dużą liczbę agentów, a tym samym bardzo dużą liczbę zdarzeń na rynku cena podlegała częstym zmianom, co zauważalne 
+jest po zagęszczeniu punktów na obu wykresach.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./big-net-money.png}
+	\caption{Przebieg liczby posiadanych środków wymiany przez agentów}
+	\label{big-net-money}
+\end{figure}
+
 
 \end{document}
