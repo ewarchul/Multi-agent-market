@@ -242,7 +242,7 @@ Komunikacja bazuje na protokole konwersacji o akcji i może się odbywać w jedn
   najmniej dwóch różnych agentów.
 \end{itemize}
 
-Oferta jest trójką \((i, p, t_{out})\), na którą składa się:
+Oferta jest parą \((i, p)\), na którą składa się:
 
 \begin{itemize}
 \tightlist
@@ -252,8 +252,6 @@ Oferta jest trójką \((i, p, t_{out})\), na którą składa się:
   ofertę sprzedaży lub kupna od agenta inicjalizującego komunikację
 \item
   \(p\) oferowana cena kupna lub sprzedaży
-\item
-  \(t_{out}\) czas trwania oferty
 \end{itemize}
 
 Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym
@@ -424,14 +422,14 @@ Wszystkie zachowania są modelowane jako zachowania cykliczne (\textit{CyclicBeh
 
 Podmoduł polityk decyzyjnych jest odpowiedzialny za przebieg wykonania akcji definiowanych w ramach logiki agenta.
 
-Na rysunku (\ref{uml-policy}) zawarty jest diagram 
+Na rysunku (\ref{fig:uml-policy}) zawarty jest diagram 
 klas UML przedstawiający metody dostarczane przez ten moduł.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth, height=0.3\textheight]{./policy.png}
 	\caption{Diagram polityk decyzyjnych.}
-	\label{uml-agent}
+	\label{fig:uml-policy}
 \end{figure}
 
 Klasa \texttt{Policy} jest klasą abstrakcyjną po której dziedziczą klasy \texttt{LazyPolicy} oraz \texttt{SimplePolicy}.
@@ -571,5 +569,8 @@ jest po zagęszczeniu punktów na obu wykresach.
 	\label{big-net-money}
 \end{figure}
 
+\subsection{Odporność systemu na awarie}
+
+\large \textbf{ TODO }
 
 \end{document}
