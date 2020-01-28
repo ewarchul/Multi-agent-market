@@ -242,7 +242,7 @@ Komunikacja bazuje na protokole konwersacji o akcji i może się odbywać w jedn
   najmniej dwóch różnych agentów.
 \end{itemize}
 
-Oferta jest trójką \((i, p, t_{out})\), na którą składa się:
+Oferta jest parą \((i, p)\), na którą składa się:
 
 \begin{itemize}
 \tightlist
@@ -252,8 +252,6 @@ Oferta jest trójką \((i, p, t_{out})\), na którą składa się:
   ofertę sprzedaży lub kupna od agenta inicjalizującego komunikację
 \item
   \(p\) oferowana cena kupna lub sprzedaży
-\item
-  \(t_{out}\) czas trwania oferty
 \end{itemize}
 
 Jeśli agent-kontrahent nie przystąpi do negocjacji z agentem oferującym
@@ -277,7 +275,7 @@ Opis zawarty w tej sekcji abstrahuje od szczegółów implementacyjnych.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, height=0.7\textheight]{./system-arch.png}
+	\includegraphics[width=\textwidth, height=0.7\textheight]{./png/system-arch.png}
 	\caption{Architektura systemu z zaznaczanonymi modułami składowymi.}
 	\label{arch1}
 \end{figure}
@@ -321,7 +319,7 @@ klas UML przedstawiający metody dostarczane przez ten moduł.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./net-uml.png}
+	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./png/net-uml.png}
 	\caption{Diagram klas modułu sieci połączeń.}
 	\label{uml-net}
 \end{figure}
@@ -342,7 +340,7 @@ Dostępne możliwe komendy są następujące:
 W celu wprowadzania komend dedykowane jest specjalne okno, które widnieje na rysunku (\ref{run-image}) prezentującym działanie systemu.
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, height=0.5\textheight]{./run-image.png}
+	\includegraphics[width=\textwidth, height=0.5\textheight]{./png/run-image.png}
 	\caption{System wypisuje archiwum zdarzeń na strumień standardowego wyjścia oraz widoczne jest działanie modułu wizualizaującego. Okno przy lewym górnym rogu zapewnia \texttt{CLI}.}
 	\label{run-image}
 \end{figure}
@@ -357,7 +355,7 @@ klas UML przedstawiający metody dostarczane przez ten moduł.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./config-uml.png}
+	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./png/config-uml.png}
 	\caption{Diagram klas modułu konfiguracyjnego.}
 	\label{uml-config}
 \end{figure}
@@ -389,7 +387,7 @@ Na rysunku (\ref{uml-agent}) znajduje się diagram klas przedstawiający element
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth, height=0.8\textheight]{./agent-uml.png}
+	\includegraphics[width=0.8\textwidth, height=0.8\textheight]{./png/agent-uml.png}
 	\caption{Diagram klas modułu agenta.}
 	\label{uml-agent}
 \end{figure}
@@ -424,14 +422,14 @@ Wszystkie zachowania są modelowane jako zachowania cykliczne (\textit{CyclicBeh
 
 Podmoduł polityk decyzyjnych jest odpowiedzialny za przebieg wykonania akcji definiowanych w ramach logiki agenta.
 
-Na rysunku (\ref{uml-policy}) zawarty jest diagram 
+Na rysunku (\ref{fig:uml-policy}) zawarty jest diagram 
 klas UML przedstawiający metody dostarczane przez ten moduł.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth, height=0.3\textheight]{./policy.png}
+	\includegraphics[width=0.8\textwidth, height=0.3\textheight]{./png/policy.png}
 	\caption{Diagram polityk decyzyjnych.}
-	\label{uml-agent}
+	\label{fig:uml-policy}
 \end{figure}
 
 Klasa \texttt{Policy} jest klasą abstrakcyjną po której dziedziczą klasy \texttt{LazyPolicy} oraz \texttt{SimplePolicy}.
@@ -446,7 +444,7 @@ klas UML przedstawiający metody dostarczane przez ten moduł.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./logger-uml.png}
+	\includegraphics[width=0.3\textwidth, height=0.3\textheight]{./png/logger-uml.png}
 	\caption{Diagram klas modułu archiwizującego.}
 	\label{logger-agent}
 \end{figure}
@@ -498,7 +496,7 @@ Na rysunku (\ref{vis-image}) zaprezentowana jest przykładowa wizualizacja symul
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth, height=0.4\textheight]{./vis-image.png}
+	\includegraphics[width=\textwidth, height=0.4\textheight]{./png/vis-image.png}
 	\caption{Wizualizacja symulacji złożonej z 9 agentów. Agent $(3)$ posiada 0 jednostek produktu oraz $1109.54$ jednostek środka wymiany.}
 	\label{vis-image}
 \end{figure}
@@ -517,18 +515,19 @@ Przykładowy przebieg utworzony na podstawie archiwum symulacji znajduje się na
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{./analytics-image.png}
+	\includegraphics[width=\textwidth]{./png/analytics-image.png}
 	\caption{Przebieg liczby posiadanych jednostek produktu oraz środków wymiany przez agenta.}
 	\label{analytics-image}
 \end{figure}
 
 \section{Eksperymenty \label{sec3}}
 
-W ramach zaprezentowania możliwości zaprojektowanego i zaimplementowanego systemu w ramach projektu przeprowadzono dwa eksperymenty:
+W celu zaprezentowania możliwości zaprojektowanego i zaimplementowanego systemu w ramach projektu przeprowadzono trzy eksperymenty:
 
 \begin{itemize}
 	\item generacja monopolu, tj. eksperyment mający na celu zbadanie wpływu kosztu produkcji na możliwość utworzenia się monopolu na rynku dóbr konsumpcyjnych	
-	\item działanie sieci wielkoskalowej, tj. eksperyment, w którym sprawdzano jak działa system w obliczu przeprowadzania symulacji dla wielu agentów oraz reakcje systemu na wyłączenie jednego z agentów.
+	\item działanie sieci wielkoskalowej, tj. eksperyment, w którym sprawdzano jak działa system w obliczu przeprowadzania symulacji dla wielu agentów oraz reakcje systemu na wyłączenie jednego z agentów
+	\item odporność systemu na awarie, tj. eksperyment, w którym sprawdzono zachowanie systemu po wyłączeniu agenta ze zbioru agentów aktywnych oraz jego włączenia.
 \end{itemize}
 
 
@@ -543,7 +542,7 @@ Sieć połączeń między agentami stanowiła graf pełny. Rysunek przedstawia (
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{./monopoly-resource.png}
+	\includegraphics[width=\textwidth]{./png/monopoly-resource.png}
 	\caption{Przebieg liczby posiadanych jednostek produktu przez agentów. Brak zaznaczonego przebiegu dla agentów o ID \texttt{1} oraz \texttt{2} oznacza samoistne wyłączenie się z sesji.}
 	\label{monopoly-resource}
 \end{figure}
@@ -552,12 +551,12 @@ Dominująca pozycja na rynku podmiotu o ID równym \texttt{0} ukazała się rów
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{./monopoly-money.png}
+	\includegraphics[width=\textwidth]{./png/monopoly-money.png}
 	\caption{Przebieg liczby posiadanych środków wymiany przez agentów}
 	\label{monopoly-money}
 \end{figure}
 
-\subsection{Działanie sieci wielkoskalowej}
+\subsection{Działanie sieci wielkoskalowej \label{big-net}}
 
 W ramach eksperymentów na systemie sprawdzono również w jaki sposób działa on, gdy liczba agentów jest duża -- w przypadku przyjętej konfiguracji było to dziewięciu agentów.
 Sieć połączeń między nimi jest tożsama z siecią połączeń przedstawioną na rysunku (\ref{vis-image}).\\
@@ -566,10 +565,57 @@ jest po zagęszczeniu punktów na obu wykresach.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{./big-net-money.png}
+	\includegraphics[width=\textwidth]{./png/big-net-money.png}
 	\caption{Przebieg liczby posiadanych środków wymiany przez agentów}
 	\label{big-net-money}
 \end{figure}
 
+\subsection{Odporność systemu na awarie}
+
+W celu zbadania odporności systemu na awarie zbadano jego zachowanie w obliczu wyłączenia jednego z agentów. W związku z faktem, że na infrastrukturę systemu składają się wyłącznie agenty i to na podstawie ich stanu generowana 
+jest sieć połączeń lub przebieg symulacji, przeprowadzenie takiego eksperymentu i przeanalizowanie jego wyników powinno zwrócić kompletną informację o t.zw. \textit{fault-tolerant} zaimplementowanego systemu. \\
+
+Warunki początkowe eksperymentu są równoważne warunkom z eksperymentu opisanego w sekcji (\ref{big-net}). 
+W trakcie jego trwania przy pomocy dostarczanej linii komend wyłączono agenta o ID równym $7$, co zostało odnotowane przez moduł archiwizujący i jest widoczne na rysunku (\ref{killed}). Ponadto widoczne jest tam, że agenty
+dalej podejmują dostępne akcje z tą różnicą, że z ich sieci połączeń wyłączony jest agent o ID równym $7$.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./png/killed.png}
+	\caption{System poprawnie odnotowuje wyłączenie jednego z agentów.}
+	\label{killed}
+\end{figure}
+
+Po pewnej chwili wyłączony wcześniej agent został przywrócony, co jest widoczne na rysunku (\ref{restarted}).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./png/restared.png}
+	\caption{System poprawnie odnotowuje przywrócenie jednego z agentów.}
+	\label{restared}
+\end{figure}
+
+Przywrócenie agenta spowodowało, że ponownie zaczął on brać udział w transakcjach handlowych, co można zauważyć na rysunku (\ref{offers}). 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./png/offers.png}
+	\caption{Przywrócony agent formułuje oferty handlowe.}
+	\label{offers}
+\end{figure}
+
+Ponadto pozostałe agenty w systemie poprawnie reagują na jego oferty handlowe, co świadczy o poprawnym włączeniu uprzednio wyłączonego agenta do ich sieci połączeń (patrz rys. \ref{reactions}).
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./png/reactions.png}
+	\caption{Pozostałe agenty poprawnie reagują na obecność przywróconego agenta.}
+	\label{reactions}
+\end{figure}
+
+
 
 \end{document}
+
+
