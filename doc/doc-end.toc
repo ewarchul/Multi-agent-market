@@ -18,8 +18,4 @@
 \contentsline {subsection}{\numberline {3.7}Modu\IeC {\l } raportowo-analityczny}{14}{subsection.3.7}
 \contentsline {section}{\numberline {4}Eksperymenty }{15}{section.4}
 \contentsline {subsection}{\numberline {4.1}Generacja monopolu}{15}{subsection.4.1}
-\contentsline {subsubsection}{\numberline {4.1.1}Konfiguracja agent\IeC {\'o}w}{15}{subsubsection.4.1.1}
-\contentsline {subsubsection}{\numberline {4.1.2}Obserwacje i wnioski}{15}{subsubsection.4.1.2}
-\contentsline {subsection}{\numberline {4.2}Dzia\IeC {\l }anie sieci wielkoskalowej}{15}{subsection.4.2}
-\contentsline {subsubsection}{\numberline {4.2.1}Konfiguracja agent\IeC {\'o}w}{16}{subsubsection.4.2.1}
-\contentsline {subsubsection}{\numberline {4.2.2}Obserwacje i wnioski}{16}{subsubsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2}Dzia\IeC {\l }anie sieci wielkoskalowej}{17}{subsection.4.2}
