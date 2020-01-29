@@ -22,10 +22,3 @@ python run.py [-config] [-log] [-log_stream] [-vis]
 
 Szczegółowy opis włączenia systemu znajduje się sekcji 3.1.1 dokumentacji końcowej.
 
-
-## Bibliografia
-
-[Bonatti et al. 1998][1].
-
-
-[1]: https://www.sciencedirect.com/science/article/abs/pii/S0921889098000256
