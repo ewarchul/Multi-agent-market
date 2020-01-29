@@ -114,6 +114,7 @@ class AgentConfig(object):
                 'storage-limit': self.storage_limit,
                 'utilization-cost': self.utilization_cost,
                 'needs-satisfaction-timeout': self.needs_satisfaction_timeout,
+                'needs-satisfaction-cost': self.needs_satisfaction_cost,
                 'initial-money': self.initial_money,
                 'production-limit': serialize_func(self._production_limit, self._production_limit_args),
                 'needs': serialize_func(self._needs, self._needs_args),
@@ -140,6 +141,7 @@ class AgentConfig(object):
             self.storage_limit = yaml_file.get('storage-limit', DEFAULT_NUMERICAL_PARAM)
             self.utilization_cost = yaml_file.get('utilization-cost', DEFAULT_NUMERICAL_PARAM)
             self.needs_satisfaction_timeout = yaml_file.get('needs-satisfaction-timeout', DEFAULT_NUMERICAL_PARAM)
+            self.needs_satisfaction_cost = yaml_file.get('needs-satisfaction-cost', DEFAULT_NUMERICAL_PARAM)
             self.initial_money = yaml_file.get('initial-money', DEFAULT_NUMERICAL_PARAM)
 
             self._production_limit, self._production_limit_args = deserialize_func(

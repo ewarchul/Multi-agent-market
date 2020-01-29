@@ -1,0 +1,19 @@
+initial-money: 50
+storage-limit: 10
+needs-satisfaction-timeout: 5
+needs-satisfaction-cost: 10
+utilization-cost: 5
+needs:
+  module: config.functions
+  fun: random_uniform_per_second
+  args:
+    - 2
+    - 3
+income:
+  module: config.functions
+  fun: const_per_second
+  args:
+    - 25
+policy_builder:
+  module: policies.SimplePolicy
+  fun: SimplePolicy

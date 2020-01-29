@@ -13,7 +13,7 @@ class SimplePolicy(Policy):
     MIN_RESOURCE = 0.001
 
     def __init__(self, agent,
-                 minimal_price_change=0.1,
+                 minimal_price_change=0.2,
                  market_price_increase_factor=2,
                  market_price_decrease_factor=2,
                  buy_if_has_money_prob=0,
@@ -105,13 +105,13 @@ class SimplePolicy(Policy):
         :param other_offers: a dict of offers to counter
         :return: a counter or breakdown offer
         """
-        if not self.agent.money_total - self.agent.money_in_use:
+        if self.agent.money_total - self.agent.money_in_use + (own_offer.money if own_offer else 0) <= 0:
             return Offer(OfferType.BREAKDOWN_OFFER, False, 0, 0)
 
         prev_offers = [oo for o in other_offers.values() for oo in o.other_offers if oo.resource]
         other_offers = [o for o in other_offers.values() if o.resource]
 
-        upper_resource_bound = sum(o.resource for o in other_offers)\
+        upper_resource_bound = max(o.resource for o in other_offers)\
             if other_offers else self.resource_increase_limit()
 
         upper_price_bound = min(o.money / o.resource for o in other_offers)
@@ -159,7 +159,7 @@ class SimplePolicy(Policy):
         other_offers = [o for o in other_offers.values() if o.resource]
 
         upper_resource_bound = min(
-            sum(o.resource for o in other_offers),
+            max(o.resource for o in other_offers),
             self.agent.resource_total - self.agent.resource_in_use + (own_offer.resource if own_offer else 0)
         )
         upper_resource_bound = round(upper_resource_bound, self.ACCURACY)

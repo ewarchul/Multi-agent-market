@@ -1,6 +1,7 @@
 from spade import quit_spade
 
 import logger
+import tkinter
 
 
 def shutdown():
@@ -46,22 +47,56 @@ def restore_agent(all_agents, agents):
         all_agents[agent_id].restore()
 
 
-def main_loop(agents):
-    run = True
-    while run:
-        command = input("waiting for command ...\n")
-        command_list = command.split(" ")
-        print(command_list)
-        if command_list[0] == "kill":
-            kill_agent(agents, command_list[1:])
-        elif command_list[0] == "shutdown":
-            run = shutdown()
-        elif command_list[0] == "restore":
-            restore_agent(agents, command_list[1:])
-        elif command_list[0] == "log":
-            show_log()
+def run_command(command, agents):
+    command_list = command.split(" ")
+    if command_list[0] == "kill":
+        kill_agent(agents, command_list[1:])
+    elif command_list[0] == "shutdown":
+        return False
+    elif command_list[0] == "restore":
+        restore_agent(agents, command_list[1:])
+    elif command_list[0] == "log":
+        show_log()
+    return True
+
+
+def run_ui(agents, vis_updater, vis_closer):
+    tk = tkinter.Tk()
+    l = tkinter.Label(tk, text='Enter command...')
+    l.pack()
+    e = tkinter.Entry(tk)
+    e.pack(fill="x")
+
+    tk.geometry("300x63")
+
+    def on_click():
+        if not run_command(e.get(), agents):
+            vis_closer()
+            tk.destroy()
+            print('Exit with command')
         else:
-            pass
+            e.delete(0, 'end')
 
+    def update_vis():
+        if vis_updater():
+            tk.after(100, update_vis)
+        else:
+            vis_closer()
+            tk.destroy()
+            print('Exit because plot closed')
 
+    def on_win_close():
+        vis_closer()
+        tk.destroy()
 
+    b = tkinter.Button(tk, text='Run', command=on_click, default="active")
+    b.pack(fill="both")
+
+    if vis_updater:
+        tk.after(100, update_vis)
+
+    tk.protocol("WM_DELETE_WINDOW", on_win_close)
+
+    tk.mainloop()
+
+    shutdown()

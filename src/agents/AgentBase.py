@@ -15,6 +15,7 @@ class AgentBase(spade.agent.Agent):
     """
     HOST = 'localhost'
     TIME_QUANT = 0.05
+    CLIENT_TIMEOUT_FACTOR = 2
 
     def get_agent_jid(self, agent_id):
         """
@@ -158,6 +159,8 @@ class AgentBase(spade.agent.Agent):
 
     def restore(self):
         if not self.running:
+            self.sender_behaviour = self.SendMessages()
+            self.receiver_behaviour = self.ReceiveMessage()
             self.add_behaviour(self.sender_behaviour)
             self.add_behaviour(self.receiver_behaviour)
 
@@ -363,7 +366,7 @@ class AgentBase(spade.agent.Agent):
         partner_offer = initial_offer
         own_offer = self.get_counter_offer(None, {partner: partner_offer})
 
-        timeout = self.get_timeout()
+        timeout = self.get_timeout() * self.CLIENT_TIMEOUT_FACTOR
 
         while partner_offer.type in (OfferType.INITIAL_OFFER, OfferType.COUNTER_OFFER):
             session.send(own_offer, partner, partner_session)

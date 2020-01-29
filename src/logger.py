@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from datetime import datetime
-import sys
 from contextlib import ContextDecorator
 
 
@@ -59,15 +58,18 @@ EVENTS_ALL = {
 logger = None
 
 
-def initialize_default_logger(log_file, use_stderr=False):
+def initialize_default_logger(log_file, stdstream=None):
     """
 
     :param log_file: file object to log to
-    :param use_stderr: if True will log to stderr, else to stdout
+    :param stdstream: additional stream to use
     """
     global logger
-    std_stream = sys.stderr if use_stderr else sys.stdout
-    streams = (std_stream, log_file) if log_file else std_stream
+    streams = []
+    if log_file:
+        streams.append(log_file)
+    if stdstream:
+        streams.append(stdstream)
     logger = Logger(streams, EVENTS_ALL)
 
 

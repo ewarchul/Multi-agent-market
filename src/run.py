@@ -1,4 +1,4 @@
-from main_cli import main_loop
+from main_cli import run_ui
 from agentNet.agent_net import AgentNet
 from config.agent_config import load_agent_config
 from agents.Agent import Agent
@@ -8,8 +8,8 @@ import logging
 import logger
 
 import argparse
-import os, time
-import threading
+import os, sys
+import queue
 
 
 def disable_spade_warnings():
@@ -41,22 +41,25 @@ def visualisation(graph, logger):
     :param graph: agent_net graph
     :param logger: system logger
     """
-    global eventDict
     eventDict = {}
 
     def handler(event, **kwargs):
         # print("hello")
         if event in eventDict.keys():
-            eventDict[event].append(kwargs)
+            eventDict[event].put(kwargs)
         else:
-            eventDict[event] = []
-            eventDict[event].append(kwargs)
+            eventDict[event] = queue.Queue()
+            eventDict[event].put(kwargs)
     logger.logger.register_event_handler(logger.EVENT_AGENT_STATE_CHANGED, handler)
     logger.logger.register_event_handler(logger.EVENT_MESSAGE_SENT, handler)
-    time.sleep(10)
-    thread = threading.Thread(target=real_time_plot, args=(graph, eventDict))
-    thread.start()
-    # real_time_plot(graph, eventDict)
+
+    vis_updater, vis_closer = real_time_plot(graph, eventDict)
+
+    def run_real_time_plot():
+        with logger.ExceptionCatcher('Visualisation'):
+            return vis_updater()
+
+    return run_real_time_plot, vis_closer
 
 
 def initialize(network_config, network_config_filename):
@@ -72,7 +75,7 @@ def initialize(network_config, network_config_filename):
 
     for n in network_config.network.nodes():
         agent_config = get_agent_config_filename(network_config.agents_policies[n], network_config_filename)
-        agents[n] = create_agent(n, network_config.network.edges(n), agent_config)
+        agents[n] = create_agent(n, set(network_config.network.neighbors(n)), agent_config)
 
     for a in agents.values():
         a.start()
@@ -82,19 +85,20 @@ def initialize(network_config, network_config_filename):
     return agents
 
 
-def run(config_filename, log_filename, vis, log_to_stderr):
+def run(config_filename, log_filename, vis, stdstream):
     log_file = open(log_filename, 'w') if log_filename else None
-    logger.initialize_default_logger(log_file, use_stderr=log_to_stderr)
+    logger.initialize_default_logger(log_file, stdstream)
 
     disable_spade_warnings()
-    
+
     network_config = AgentNet()
     network_config.load_network(config_filename)
 
+    vis_updater, vis_closer = visualisation(network_config, logger) if vis else None
+
     agents = initialize(network_config, config_filename)
-    if vis:
-        visualisation(network_config, logger)
-    main_loop(agents)
+
+    run_ui(agents, vis_updater, vis_closer)
 
 
 if __name__ == "__main__":
@@ -102,9 +106,15 @@ if __name__ == "__main__":
 
     parser.add_argument('--config', action='store', type=str, required=True)
     parser.add_argument('--log', action='store', type=str, default=None, required=False)
-    parser.add_argument('--log_stream', action='store', type=str, choices=('out', 'err'), default='err')
+    parser.add_argument('--log_stream', action='store', type=str, choices=('out', 'err', ''), default='')
     parser.add_argument('--vis', action='store', type=bool, default=False)
 
     args = parser.parse_args()
 
-    run(args.config, args.log, args.vis, args.log_stream == 'err')
+    stdstreams = {
+        'err': sys.stderr,
+        'out': sys.stdout,
+        '': None
+    }
+
+    run(args.config, args.log, args.vis, stdstream=stdstreams[args.log_stream])
