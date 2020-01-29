@@ -1,23 +1,31 @@
-# Market simulations with multi-agent system approach 
+# Symulator rynku zasobów
 
-## Overview
+## Stuktura repozytorium 
 
-Uni project focused on implementation of multi-agent system (MAS) in context of market simulations. Core idea of project is similar with [Bonatti et al. 1998][1].
+* `doc` katalog z dokumentacją
+ * `doc-end` dokumentacja końcowa
+ * `dokumentacja-wstepna` dokumentacja wstępna
+* `src` katalog z kodem źródłowym
 
-## Assumptions
+## Wymagania
 
-todo
+* Python 3.5+
+* serwer XMPP
 
-## Implementation
+## Użycie
 
-todo
+W celu użycia systemu należy włączyć serwer XMPP, a następnie wykonać skrypt `src/run.py`
 
-## Usage 
+```
+python run.py [-config] [-log] [-log_stream] [-vis]
+```
 
-todo
+Szczegółowy opis włączenia systemu znajduje się sekcji 3.1.1 dokumentacji końcowej.
 
-## Analytics
 
-todo
+## Bibliografia
+
+[Bonatti et al. 1998][1].
+
 
 [1]: https://www.sciencedirect.com/science/article/abs/pii/S0921889098000256
